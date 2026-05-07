@@ -1,11 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var request = require('request');
 var fs = require('fs');
+var path = require('path');
 
-/* GET users listing. */
+var downloadsDir = path.join(__dirname, '..', 'downloads');
+
 router.get('/:round', function(req, res, next) {
-   fs.readFile('downloads/players'+req.params.round+'.json', function(err, data) {
+   fs.readFile(path.join(downloadsDir, 'players' + req.params.round + '.json'), function(err, data) {
 		  //console.log("james", JSON.parse(data),"James");
 		  if(err){
 			res.send();

@@ -1,1 +1,12 @@
-{}
+{
+  "funwolves": [],
+  "Pizza Samu": [],
+  "BumbIose": [],
+  "BumbleBlues": [],
+  "OnIslandTime": [],
+  "Ned Shenanigans": [],
+  "Scrumchops": [],
+  "BIG REDS": [],
+  "The Chiefs": [],
+  "Big KaTunas": []
+}

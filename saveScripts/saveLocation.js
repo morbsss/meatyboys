@@ -1,6 +1,5 @@
+var path = require('path');
 
-
-var loc = '/home/ubuntu/meatyboys/';
-// var loc = '/Users/jamesdunlop/meatyboys/';
+var loc = path.join(__dirname, '..') + '/';
 
 module.exports = loc;

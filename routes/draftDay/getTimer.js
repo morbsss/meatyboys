@@ -2,9 +2,12 @@ var express = require('express');
 
 var router = express.Router();
 var fs = require('fs');
-/* GET home page. */
+var path = require('path');
+
+var playerfilesDir = path.join(__dirname, '..', '..', 'playerfiles');
+
 router.get('/', function(req, res, next) {
-  fs.readFile('playerfiles/time.txt', function(err, data) {
+  fs.readFile(path.join(playerfilesDir, 'time.txt'), function(err, data) {
           //console.log("james", JSON.parse(data),"James");
           try {
             console.log(JSON.parse(data).time);

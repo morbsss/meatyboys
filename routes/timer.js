@@ -3,6 +3,9 @@ var users = require('../playerfiles/userLogins');
 
 var router = express.Router();
 var fs = require('fs');
+var path = require('path');
+
+var playerfilesDir = path.join(__dirname, '..', 'playerfiles');
 /* GET home page. */
 router.get('/:toChange', function(req, res, next) {
     res.send('success');
@@ -13,7 +16,7 @@ router.get('/:toChange', function(req, res, next) {
     var timeobj = {time:start,usr:currUser,snake:"up"};
     console.log("Start Timer is:" + req.params.toChange);
     if(req.params.toChange=="start"){       
-        fs.writeFile('playerfiles/time.txt', JSON.stringify(timeobj), function (err) {
+        fs.writeFile(path.join(playerfilesDir, 'time.txt'), JSON.stringify(timeobj), function (err) {
             //if (err) throw err;
         console.log('Saved start time');
         });
@@ -62,7 +65,7 @@ router.get('/:toChange', function(req, res, next) {
 });
 function getTimeData(){
     return new Promise((resolve,reject)=>{
-        fs.readFile('playerfiles/time.txt', function(err, data) {
+        fs.readFile(path.join(playerfilesDir, 'time.txt'), function(err, data) {
             try {
                 resolve(JSON.parse(data));
               }catch(err){

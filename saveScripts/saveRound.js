@@ -32,12 +32,9 @@ fs.readFile(loc + 'downloads/currentseason.json', function (err, data) {
 );
 
 function convertDate(date) {
-	//flip the date to be in the correct format
-	//15/02/2019 06:35:00
-	//2019-02-15T06:35:00.000Z
 	date = date.split("/");
-	var day = date[0];
-	var month = date[1];
+	var day = ('0' + date[0]).slice(-2);
+	var month = ('0' + date[1]).slice(-2);
 	var year = date[2].split(" ");
 	date = year[0] + "-" + month + "-" + day;
 	time = year[1];
