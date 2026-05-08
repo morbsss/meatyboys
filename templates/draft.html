@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+			<title>Draft Day</title>
+			<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+			<link rel="icon" href="favicon.ico" type="image/x-icon">
+			<meta name="description" content="Meaty Boys Cup">
+			<meta name="author" content="SitePoint">
+			<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+			<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+			<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
+			<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+			<script src="javascripts/draft.js"></script>
+            <style>
+
+                    .myTable{
+                        color: black;
+                    }
+                    .myTTitle{
+                        font-size: 160%;
+                        text-align:center;
+                    }
+                    .myRow{
+                        border: 2px solid black;
+                        text-align:center;
+                    }
+                    .rName {
+                        font-size: 200%;
+                        padding-top:15px;
+
+                    }
+                    .rScore{
+                        padding-top:0px;
+                        font-size: 350%;
+                    }
+                    .rOwner{
+                        font-size: 120%;
+                    }
+                    .navButton{
+                        display:inline-block;
+                    }
+                    .verticaltext{
+                        width:1px;
+                        word-wrap: break-word;
+                        padding:0px;
+                        text-align:center;
+                    }
+                    .navBar{
+                        display:inline-block;
+                    }
+                    .loader{
+                         position: relative;
+                        left: 40%;
+                    }
+                    .timeStamp{
+                        float: right;
+                    }
+                    .heading{
+                        text-align:center;
+                        font-size:200%;
+                        font-weight:bold;
+                    }
+                    .titleH{
+                        padding-right:15%;
+                    }
+                    .titleA{
+                        padding-left:15%;
+                    }
+                    .dropStyle{
+                       text-align:center;
+                    }
+
+                    .bodyStyle{
+                        padding-top:60px;
+                    }
+                    .leftBorder{
+                        border-left:2px;
+                        border-color:#9d9d9d;
+                        border-left-style: solid;
+                    }
+                    .tValh{
+                      font-size:200%;
+                      padding-right:15%;
+                      padding-left:15%;
+
+                    }
+                    .tVala{
+                      font-size:200%;
+                      padding-left:15%;
+                      padding-right:15%;
+                    }
+
+                </style>
+	</head>
+	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left" id="navBar">
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="container-fluid bodyStyle" id="dashSpace" >
+            <input id="toUser" style="display: none"/>
+            <input id="code" placeholder="ENTER CODE" type="password"/>
+            <button id="codeButton" onClick="lookUpUser()">Submit</button>
+            <input id="search" placeholder="Search Player or Position" onchange="filterPlayers()" />
+			<div class="heading" id="timer">
+            </div>
+            <div class="row" id="userRow">
+                <div class="col-sm-6">
+                        <table  class="table myTable" id="playerTable" >
+                        </table>
+                </div>
+                <div class="col-sm-6">
+                        <table  class="table myTable" id="myPlayers" >
+                        </table>
+                </div>
+            </div>
+            <div class="row" id="allRow" style="display: none">
+                    <div class="col-sm-2">
+                            <table  class="table myTable" id="playerTableAll" >
+                            </table>
+                    </div>
+                    <div class="col-sm-10" id="allPlayers">
+
+                    </div>
+            </div>
+
+
+        </div>
+	</body>
+</html>

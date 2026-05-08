@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+			<title>Meaty Boys Cup</title>
+			<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+			<link rel="icon" href="favicon.ico" type="image/x-icon">
+			<meta name="description" content="Meaty Boys Cup">
+			<meta name="author" content="SitePoint">
+			<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+			<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+			<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+			<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
+			<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+			<script src="javascripts/main.js"></script>
+<style>
+
+	.myTable{
+		color: black;
+	}
+	.myTTitle{
+		font-size: 160%;
+		text-align:center;
+	}
+	.myRow{
+		border: 2px solid black;
+		text-align:center;
+	}
+	.rName {
+		font-size: 200%;
+		padding-top:15px;
+
+	}
+	.rScore{
+		padding-top:0px;
+		font-size: 350%;
+	}
+	.rOwner{
+		font-size: 120%;
+	}
+	.navButton{
+		display:inline-block;
+	}
+	.verticaltext{
+		width:1px;
+		word-wrap: break-word;
+		padding:0px;
+		text-align:center;
+	}
+	.navBar{
+		display:inline-block;
+	}
+	.loader{
+		 position: relative;
+		left: 40%;
+	}
+	.timeStamp{
+		float: right;
+	}
+	.heading{
+		text-align:center;
+		font-size:200%;
+		font-weight:bold;
+	}
+	.titleH{
+		padding-right:15%;
+	}
+	.titleA{
+		padding-left:15%;
+	}
+    .dropStyle{
+       text-align:center;
+    }
+
+    .bodyStyle{
+        padding-top:60px;
+	}
+    .leftBorder{
+        border-left:2px;
+        border-color:#9d9d9d;
+        border-left-style: solid;
+    }
+    .tValh{
+      font-size:200%;
+      padding-right:15%;
+      padding-left:15%;
+
+    }
+    .tVala{
+      font-size:200%;
+      padding-left:15%;
+      padding-right:15%;
+    }
+
+</style>
+	</head>
+	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left" id="navBar">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Games This Week <span class="caret"></span></a>
+							<ul class="dropdown-menu" id="games">
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Byes <span class="caret"></span></a>
+							<ul class="dropdown-menu" id="byes">
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="round">Round<span class="caret"></span></a>
+							<ul class="dropdown-menu" id="roundList">
+							</ul>
+						</li>
+						<li>
+							<a href="javascript:;" onclick="toggleSortBy()" id="sortBy" class="leftBorder" data-toggle="collapse" data-target=".navbar-collapse.in" >Sort by Position</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="container-fluid bodyStyle" id="dashSpace" >
+			<div class="heading">
+				<span class="titleH" id="homeT" >Home</span>
+				<span>VS</span>
+				<span class="titleA"  id="awayT" >Away</span>
+			</div>
+			<img class="loader" id="loader" src="images/animal.gif">
+			<table  class="table myTable" id="playerTable" >
+			</table>
+		</div>
+	</body>
+</html>

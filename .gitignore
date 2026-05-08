@@ -1,2 +1,20 @@
-/downloads
-downloads/
+# Runtime data (fetched from external APIs)
+/data/
+
+# Draft state files
+/playerfiles/
+
+# Environment / secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# IDE
+.vscode/
+.idea/

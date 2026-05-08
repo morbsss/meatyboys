@@ -1,8 +1,27 @@
-*/3 * * * 5,6,0,1 /usr/bin/node /home/ubuntu/meatyboys/saveScripts/getPlayerScores.js
-*/120 * * * 2,3,4 /usr/bin/node /home/ubuntu/meatyboys/saveScripts/getPlayerScores.js
-*/120 * * * 2,3,4 /usr/bin/node /home/ubuntu/meatyboys/saveScripts/saveDraft.js
-*/60 * * * 0,1,5,6 /usr/bin/node /home/ubuntu/meatyboys/saveScripts/saveDraft.js
-*/20 * * * 4,5,6,0,1 /usr/bin/node /home/ubuntu/meatyboys/saveScripts/saveRound.js
-* * * * 5,6,0 /usr/bin/node /home/ubuntu/meatyboys/saveScripts/saveScoreboard.js
-*/120 * * * 1,2,3,4 /usr/bin/node /home/ubuntu/meatyboys/saveScripts/saveScoreboard.js
-0 17 * * * /usr/bin/node /home/ubuntu/meatyboys/saveScripts/getCookie.js
+# Cron jobs for Meaty Boys Cup — update paths to match your server's Python installation
+# Format: minute hour day month weekday command
+# Weekdays: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+
+# Player scores every 3 min on weekends/Monday
+*/3 * * * 5,6,0,1 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/get_player_scores.py
+
+# Player scores every 2 hrs on weekdays
+*/120 * * * 2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/get_player_scores.py
+
+# Draft data every 2 hrs on weekdays
+*/120 * * * 2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_draft.py
+
+# Draft data every hour on weekends/Monday
+*/60 * * * 0,1,5,6 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_draft.py
+
+# Round update every 20 min Thu-Mon
+*/20 * * * 4,5,6,0,1 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_round.py
+
+# Scoreboard every minute on weekends/Sunday
+* * * * 5,6,0 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_scoreboard.py
+
+# Scoreboard every 2 hrs on weekdays
+*/120 * * * 1,2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_scoreboard.py
+
+# Refresh login cookie daily at 5pm
+0 17 * * * /usr/bin/python3 /home/ubuntu/meatyboys/scripts/get_cookie.py

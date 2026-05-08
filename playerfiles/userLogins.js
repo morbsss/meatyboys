@@ -1,3 +1,0 @@
-var users = [{usr:'Funwolves',code:'swerob'},{usr:'NSWasps',code:'morboys'},{usr:'David Stocock',code:'oboe'},{usr:'BumbleBlues',code:'fumbleblues'},{usr:'DraftBaron',code:'adont'},{usr:'Unbealevables',code:'james123'},{usr:'ESTMD HMS',code:'bonkin'},{usr:'Marika Stockad',code:'bumty'},{usr:'Tuis doinshoey',code:'odoylerules'},{usr:'Rees Hodge',code:'bengowlah'},{code:"HACKIN",usr:'all'}];//all user must be at end
-
-module.exports = users;
