@@ -4,8 +4,9 @@
 # Draft state files
 /playerfiles/
 
-# Environment / secrets
+# Environment / secrets — never commit real values
 .env
+.env.production
 
 # Python
 __pycache__/
@@ -13,7 +14,6 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
-.env
 
 # IDE
 .vscode/

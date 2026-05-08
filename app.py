@@ -1,7 +1,10 @@
+import copy
 import json
 import os
+import re
 import threading
 import time as time_module
+from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 
 from flask import Flask, render_template, request, jsonify, Response
@@ -15,17 +18,17 @@ DATA_DIR        = config.DATA_DIR
 PLAYERFILES_DIR = config.PLAYERFILES_DIR
 
 USERS = [
-    {'usr': 'Funwolves',      'code': 'swerob'},
-    {'usr': 'NSWasps',        'code': 'morboys'},
-    {'usr': 'David Stocock',  'code': 'oboe'},
-    {'usr': 'BumbleBlues',    'code': 'fumbleblues'},
-    {'usr': 'DraftBaron',     'code': 'adont'},
-    {'usr': 'Unbealevables',  'code': 'james123'},
-    {'usr': 'ESTMD HMS',      'code': 'bonkin'},
-    {'usr': 'Marika Stockad', 'code': 'bumty'},
-    {'usr': 'Tuis doinshoey', 'code': 'odoylerules'},
-    {'usr': 'Rees Hodge',     'code': 'bengowlah'},
-    {'usr': 'all',            'code': 'HACKIN'},   # all user must be at end
+    {'usr': 'funwolves',        'code': 'swerob'},
+    {'usr': 'Pizza Samu',       'code': 'morboys'},
+    {'usr': 'Ned Shenanigans',  'code': 'oboe'},
+    {'usr': 'BumbleBlues',      'code': 'fumbleblues'},
+    {'usr': 'OnIslandTime',     'code': 'adont'},
+    {'usr': 'Scrumchops',       'code': 'james123'},
+    {'usr': 'The Chiefs',       'code': 'chieftan'},
+    {'usr': 'Big KaTunas',      'code': 'bumty'},
+    {'usr': 'BIG REDS',         'code': 'odoylerules'},
+    {'usr': 'BumbIose',         'code': 'bengowlah'},
+    {'usr': 'all',              'code': 'HACKIN'},   # all user must be at end
 ]
 
 SELECTION_TIME_MS = 92 * 1000
@@ -139,7 +142,143 @@ def draft():
     return render_template('draft.html')
 
 
+@app.route('/leaguetable')
+def leaguetable():
+    return render_template('leaguetable.html')
+
+
 # ── data API routes ───────────────────────────────────────────────────────────
+
+@app.route('/getLeagueTable')
+def get_league_table():
+    data = read_json_file(DATA_DIR / 'leaguetable.json')
+    return jsonify(data)
+
+
+def _norm(name):
+    """Case-insensitive key that treats l/I as identical (common fantasy name trick)."""
+    return re.sub(r'[^a-z0-9]', '', name.lower().replace('i', 'l'))
+
+
+@app.route('/getLiveTable')
+def get_live_table():
+    base = read_json_file(DATA_DIR / 'leaguetable.json')
+
+    try:
+        round_data = read_json_file(DATA_DIR / 'round.json')
+        current_round = round_data.get('round', 1)
+        draft_data = read_json_file(DATA_DIR / f'draft{current_round}.json')
+    except Exception:
+        base['live'] = False
+        return jsonify(base)
+
+    try:
+        fixtures = read_json_file(DATA_DIR / 'fixtures.json')
+        matchups = fixtures.get('matchups', [])
+    except Exception:
+        fixtures  = {}
+        matchups  = []
+
+    # Determine whether games are actively in play right now
+    is_live = False
+    lw = fixtures.get('liveWindow', {})
+    if lw.get('start') and lw.get('end'):
+        try:
+            win_start = datetime.fromisoformat(lw['start'].replace('Z', '+00:00'))
+            win_end   = datetime.fromisoformat(lw['end'].replace('Z', '+00:00'))
+            is_live   = win_start <= datetime.now(timezone.utc) <= win_end
+        except ValueError:
+            pass
+
+    # Sum live points per team (skip free agents / waiver picks)
+    live_raw = defaultdict(float)
+    to_play_raw = defaultdict(int)
+    for player in draft_data:
+        uname = player.get('userName', '')
+        if uname == 'Free Agent' or uname.startswith('WAIVERS'):
+            continue
+        if not player.get('bench'):
+            try:
+                live_raw[uname] += float(player.get('score', 0) or 0)
+            except (ValueError, TypeError):
+                pass
+        # Count active picks (not on fantasy bench) who haven't scored and aren't Out
+        if (not player.get('bench')
+                and player.get('teamNews') != 'Out'
+                and float(player.get('score', 0) or 0) <= 0):
+            to_play_raw[uname] += 1
+
+    # Build normalised lookups so slightly different spellings still match
+    live_by_lower    = {n.lower(): v for n, v in live_raw.items()}
+    live_by_norm     = {_norm(n): v for n, v in live_raw.items()}
+    to_play_by_lower = {n.lower(): v for n, v in to_play_raw.items()}
+    to_play_by_norm  = {_norm(n): v for n, v in to_play_raw.items()}
+
+    def players_to_play(team_name):
+        return (to_play_by_lower.get(team_name.lower())
+                or to_play_by_norm.get(_norm(team_name))
+                or 0)
+
+    def live_score(team_name):
+        return (live_by_lower.get(team_name.lower())
+                or live_by_norm.get(_norm(team_name))
+                or 0.0)
+
+    result = copy.deepcopy(base)
+
+    # Index every team object by normalised name for fast lookup
+    all_teams = {}
+    for conf in result['conferences']:
+        for team in conf['teams']:
+            all_teams[_norm(team['team'])] = team
+
+    # Apply live fixture results
+    for m in matchups:
+        h_name, a_name = m.get('home', ''), m.get('away', '')
+        h_score = round(live_score(h_name), 1)
+        a_score = round(live_score(a_name), 1)
+
+        for name, my_score, opp_score in [(h_name, h_score, a_score),
+                                           (a_name, a_score, h_score)]:
+            team = all_teams.get(_norm(name))
+            if team is None:
+                continue
+            team['liveScore']        = my_score
+            team['liveOpponentScore'] = opp_score
+            team['pointsFor']        = round(team['pointsFor']        + my_score,  1)
+            team['pointsAgainst']    = round(team['pointsAgainst']    + opp_score, 1)
+            if my_score > opp_score:
+                team['won']        += 1
+                team['liveResult']  = 'W'
+            elif opp_score > my_score:
+                team['lost']       += 1
+                team['liveResult']  = 'L'
+            else:
+                team['tied']       += 1
+                team['liveResult']  = 'T'
+
+    # Teams not in any fixture still accumulate live points for PF
+    for uname, score in live_raw.items():
+        team = all_teams.get(_norm(uname))
+        if team is not None and 'liveScore' not in team:
+            team['liveScore']  = round(score, 1)
+            team['pointsFor']  = round(team['pointsFor'] + score, 1)
+
+    # Assign global 1-10 ranks across both conferences
+    all_teams_flat = [t for conf in result['conferences'] for t in conf['teams']]
+    all_teams_flat.sort(key=lambda t: (-t['won'], -t['pointsFor']))
+    for i, team in enumerate(all_teams_flat):
+        team['rank'] = i + 1
+
+    # Re-sort each conference by the global rank so they display in order
+    for conf in result['conferences']:
+        conf['teams'].sort(key=lambda t: t['rank'])
+
+    result['live']        = is_live
+    result['liveRound']   = current_round
+    result['lastUpdated'] = f'LIVE — Round {current_round}'
+    return jsonify(result)
+
 
 @app.route('/getcurrSeason')
 def get_curr_season():

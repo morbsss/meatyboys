@@ -4,7 +4,7 @@ App configuration — imported by app.py.
 ━━━ LOCAL DEVELOPMENT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   1. cp .env.example .env
   2. python app.py
-  App runs at http://127.0.0.1:3000
+  App runs at http://127.0.0.1:5000
 
 ━━━ PRODUCTION (VM) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Fill in the PRODUCTION values in .env (or export them as env vars), then:
@@ -39,10 +39,10 @@ DEBUG = os.getenv('DEBUG', 'true').lower() == 'true'
 # ── Server ─────────────────────────────────────────────────────────────────────
 
 # PRODUCTION ▶ change to '0.0.0.0' to accept connections on all interfaces
-HOST = os.getenv('HOST', '127.0.0.1')
+HOST = os.getenv('HOST', '0.0.0.0')
 
 # PRODUCTION ▶ set to the open port on your VM (e.g. 8080, 5000, 80)
-PORT = int(os.getenv('PORT', '3000'))
+PORT = int(os.getenv('PORT', '5000'))
 
 
 # ── Data paths ─────────────────────────────────────────────────────────────────

@@ -48,6 +48,10 @@ def get_player_score(player_id, rnd):
     while not found:
         counter += 1
         next_tr = content.find('<tr>', move)
+        if next_tr == -1:
+            fail = True
+            break
+        move = next_tr + 1  # advance past this row for the next iteration
         slip = content.find('<td>', next_tr)
         move_end = content.find('</td>', next_tr)
         number_str = content[slip + 4:move_end].strip()

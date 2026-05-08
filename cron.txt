@@ -25,3 +25,7 @@
 
 # Refresh login cookie daily at 5pm
 0 17 * * * /usr/bin/python3 /home/ubuntu/meatyboys/scripts/get_cookie.py
+
+# League table standings every 2 hrs on weekdays, every hour on weekends
+*/120 * * * 2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_leaguetable.py
+*/60 * * * 0,1,5,6 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_leaguetable.py
