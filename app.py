@@ -226,11 +226,12 @@ def get_live_table():
 
     result = copy.deepcopy(base)
 
-    # Index every team object by normalised name for fast lookup
+    # Index every team object by normalised name for fast lookup and assign toPlay
     all_teams = {}
     for conf in result['conferences']:
         for team in conf['teams']:
             all_teams[_norm(team['team'])] = team
+            team['toPlay'] = players_to_play(team['team'])
 
     # Apply live fixture results
     for m in matchups:
