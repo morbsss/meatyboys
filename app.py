@@ -147,6 +147,11 @@ def leaguetable():
     return render_template('leaguetable.html')
 
 
+@app.route('/finals')
+def finals():
+    return render_template('finals.html')
+
+
 # ── data API routes ───────────────────────────────────────────────────────────
 
 @app.route('/getLeagueTable')
@@ -155,9 +160,200 @@ def get_league_table():
     return jsonify(data)
 
 
+@app.route('/getFinalsData')
+def get_finals_data():
+    all_teams = _live_ranked_teams()
+
+    def round_team_scores(rnd):
+        try:
+            draft = read_json_file(DATA_DIR / f'draft{rnd}.json')
+        except Exception:
+            return None
+        scores = defaultdict(float)
+        for player in draft:
+            uname = player.get('userName', '')
+            if uname == 'Free Agent' or uname.startswith('WAIVERS'):
+                continue
+            if not player.get('bench'):
+                try:
+                    scores[uname] += float(player.get('score', 0) or 0)
+                except (ValueError, TypeError):
+                    pass
+        return {k: round(v, 1) for k, v in scores.items()}
+
+    def lookup(scores, name):
+        if scores is None:
+            return None
+        if name in scores:
+            return scores[name]
+        n = _norm(name)
+        for k, v in scores.items():
+            if _norm(k) == n:
+                return v
+        return None
+
+    r14 = round_team_scores(14)
+    r15 = round_team_scores(15)
+    r16 = round_team_scores(16)
+
+    def get_team(rank):
+        return next((t for t in all_teams if t['rank'] == rank), None)
+
+    def build_semi(rank_a, rank_b):
+        ta = get_team(rank_a)
+        tb = get_team(rank_b)
+        if not ta or not tb:
+            return None
+        na, nb = ta['team'], tb['team']
+        r14a, r14b = lookup(r14, na), lookup(r14, nb)
+        r15a, r15b = lookup(r15, na), lookup(r15, nb)
+        has_data = any(x is not None for x in [r14a, r14b, r15a, r15b])
+        agg_a = round((r14a or 0) + (r15a or 0), 1)
+        agg_b = round((r14b or 0) + (r15b or 0), 1)
+        return {
+            'teamA': na, 'rankA': rank_a,
+            'teamB': nb, 'rankB': rank_b,
+            'round14': {'a': r14a, 'b': r14b},
+            'round15': {'a': r15a, 'b': r15b},
+            'aggregate': {'a': agg_a if has_data else None, 'b': agg_b if has_data else None},
+            'hasData': has_data,
+        }
+
+    def champ_finalist(semi):
+        if not semi or not semi['hasData']:
+            return None
+        agg = semi['aggregate']
+        return semi['teamA'] if agg['a'] >= agg['b'] else semi['teamB']
+
+    def sacko_finalist(semi):
+        if not semi or not semi['hasData']:
+            return None
+        agg = semi['aggregate']
+        return semi['teamA'] if agg['a'] <= agg['b'] else semi['teamB']
+
+    cs1 = build_semi(1, 4)
+    cs2 = build_semi(2, 3)
+    ss1 = build_semi(7, 10)
+    ss2 = build_semi(8, 9)
+
+    cf_a, cf_b = champ_finalist(cs1), champ_finalist(cs2)
+    sf_a, sf_b = sacko_finalist(ss1), sacko_finalist(ss2)
+
+    def build_final(name_a, name_b):
+        if not name_a or not name_b:
+            return None
+        return {
+            'teamA': name_a, 'teamB': name_b,
+            'round16': {'a': lookup(r16, name_a), 'b': lookup(r16, name_b)},
+        }
+
+    champ_final = build_final(cf_a, cf_b) if r15 is not None else None
+    sacko_final = build_final(sf_a, sf_b) if r15 is not None else None
+
+    try:
+        current_round = read_json_file(DATA_DIR / 'round.json').get('round', 13)
+    except Exception:
+        current_round = 13
+
+    is_live = False
+    try:
+        lw = read_json_file(DATA_DIR / 'fixtures.json').get('liveWindow', {})
+        if lw.get('start') and lw.get('end'):
+            win_start = datetime.fromisoformat(lw['start'].replace('Z', '+00:00'))
+            win_end   = datetime.fromisoformat(lw['end'].replace('Z', '+00:00'))
+            is_live   = win_start <= datetime.now(timezone.utc) <= win_end
+    except Exception:
+        pass
+
+    try:
+        last_fetch = read_json_file(DATA_DIR / 'lastfetch.json').get('time', '')
+    except Exception:
+        last_fetch = ''
+
+    return jsonify({
+        'currentRound': current_round,
+        'champSemi1': cs1, 'champSemi2': cs2,
+        'sackoSemi1': ss1, 'sackoSemi2': ss2,
+        'champFinal': champ_final,
+        'sackoFinal': sacko_final,
+        'hasR14': r14 is not None,
+        'hasR15': r15 is not None,
+        'hasR16': r16 is not None,
+        'live': is_live,
+        'lastFetch': last_fetch,
+        'lastUpdated': f'LIVE — Round {current_round}',
+    })
+
+
 def _norm(name):
     """Case-insensitive key that treats l/I as identical (common fantasy name trick)."""
     return re.sub(r'[^a-z0-9]', '', name.lower().replace('i', 'l'))
+
+
+def _live_ranked_teams():
+    """Flat list of all team dicts ranked 1-10, with live current-round scores applied."""
+    base = read_json_file(DATA_DIR / 'leaguetable.json')
+    result = copy.deepcopy(base)
+
+    try:
+        current_round = read_json_file(DATA_DIR / 'round.json').get('round', 1)
+        draft_data = read_json_file(DATA_DIR / f'draft{current_round}.json')
+    except Exception:
+        draft_data = []
+
+    try:
+        matchups = read_json_file(DATA_DIR / 'fixtures.json').get('matchups', [])
+    except Exception:
+        matchups = []
+
+    live_raw = defaultdict(float)
+    for player in draft_data:
+        uname = player.get('userName', '')
+        if uname == 'Free Agent' or uname.startswith('WAIVERS'):
+            continue
+        if not player.get('bench'):
+            try:
+                live_raw[uname] += float(player.get('score', 0) or 0)
+            except (ValueError, TypeError):
+                pass
+
+    live_by_lower = {n.lower(): v for n, v in live_raw.items()}
+    live_by_norm  = {_norm(n): v for n, v in live_raw.items()}
+
+    def _live(team_name):
+        return live_by_lower.get(team_name.lower()) or live_by_norm.get(_norm(team_name)) or 0.0
+
+    all_teams_map = {}
+    for conf in result['conferences']:
+        for team in conf['teams']:
+            all_teams_map[_norm(team['team'])] = team
+
+    for m in matchups:
+        h, a = m.get('home', ''), m.get('away', '')
+        hs, as_ = round(_live(h), 1), round(_live(a), 1)
+        for name, my, opp in [(h, hs, as_), (a, as_, hs)]:
+            t = all_teams_map.get(_norm(name))
+            if t is None:
+                continue
+            t['pointsFor']     = round(t['pointsFor'] + my, 1)
+            t['pointsAgainst'] = round(t['pointsAgainst'] + opp, 1)
+            if my > opp:
+                t['won'] += 1
+            elif opp > my:
+                t['lost'] += 1
+            else:
+                t['tied'] += 1
+
+    for uname, score in live_raw.items():
+        t = all_teams_map.get(_norm(uname))
+        if t is not None and 'liveScore' not in t:
+            t['pointsFor'] = round(t['pointsFor'] + score, 1)
+
+    flat = [t for conf in result['conferences'] for t in conf['teams']]
+    flat.sort(key=lambda t: (-t['won'], -t['pointsFor']))
+    for i, t in enumerate(flat):
+        t['rank'] = i + 1
+    return flat
 
 
 @app.route('/getLiveTable')

@@ -3,29 +3,31 @@
 # Weekdays: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
 
 # Player scores every 3 min on weekends/Monday
-*/3 * * * 5,6,0,1 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/get_player_scores.py
+*/3 * * * 5,6,0,1 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/get_player_scores.py >> /root/meatyboys/cron.log 2>&1
 
 # Player scores every 2 hrs on weekdays
-*/120 * * * 2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/get_player_scores.py
+0 */2 * * 2,3,4 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/get_player_scores.py >> /root/meatyboys/cron.log 2>&1
 
 # Draft data every 2 hrs on weekdays
-*/120 * * * 2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_draft.py
+0 */2 * * 2,3,4 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_draft.py >> /root/meatyboys/cron.log 2>&1
 
 # Draft data every hour on weekends/Monday
-*/60 * * * 0,1,5,6 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_draft.py
+0 * * * 0,1,5,6 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_draft.py >> /root/meatyboys/cron.log 2>&1
 
 # Round update every 20 min Thu-Mon
-*/20 * * * 4,5,6,0,1 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_round.py
+*/20 * * * 4,5,6,0,1 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_round.py >> /root/meatyboys/cron.log 2>&1
 
-# Scoreboard every minute on weekends/Sunday
-* * * * 5,6,0 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_scoreboard.py
+# Scoreboard every minute on Fri/Sat/Sun
+* * * * 5,6,0 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_scoreboard.py >> /root/meatyboys/cron.log 2>&1
 
-# Scoreboard every 2 hrs on weekdays
-*/120 * * * 1,2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_scoreboard.py
+# Scoreboard every 2 hrs on Mon-Thu
+0 */2 * * 1,2,3,4 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_scoreboard.py >> /root/meatyboys/cron.log 2>&1
 
 # Refresh login cookie daily at 5pm
-0 17 * * * /usr/bin/python3 /home/ubuntu/meatyboys/scripts/get_cookie.py
+0 17 * * * /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/get_cookie.py >> /root/meatyboys/cron.log 2>&1
 
-# League table standings every 2 hrs on weekdays, every hour on weekends
-*/120 * * * 2,3,4 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_leaguetable.py
-*/60 * * * 0,1,5,6 /usr/bin/python3 /home/ubuntu/meatyboys/scripts/save_leaguetable.py
+# League table every minute on Fri/Sat/Sun
+* * * * 5,6,0 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_leaguetable.py >> /root/meatyboys/cron.log 2>&1
+
+# League table every 2 hrs on Mon-Thu
+0 */2 * * 1,2,3,4 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_leaguetable.py >> /root/meatyboys/cron.log 2>&1
