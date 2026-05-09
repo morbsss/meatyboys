@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Meaty Boys Cup — League Table</title>
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+		<link rel="icon" href="favicon.ico" type="image/x-icon">
+		<meta name="description" content="Meaty Boys Cup">
+		<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
+		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+		<script src="javascripts/leaguetable.js"></script>
+		<style>
+			.myTable { color: black; }
+			.loader {
+				position: relative;
+				left: 40%;
+			}
+			.timeStamp { float: right; }
+			.heading {
+				text-align: center;
+				font-size: 200%;
+				font-weight: bold;
+			}
+			.bodyStyle { padding-top: 60px; }
+			.leftBorder {
+				border-left: 2px;
+				border-color: #9d9d9d;
+				border-left-style: solid;
+			}
+			.ltWrap { overflow-x: auto; }
+
+			/* ── conference header row ─────────────────────────────── */
+			.myTable tr.confHeader th {
+				background-color: #1a8fc4;
+				color: #fff;
+				font-weight: bold;
+				text-transform: uppercase;
+				padding: 9px 10px;
+				border: 1px solid #1270a0;
+				white-space: nowrap;
+			}
+
+			/* ── data rows ─────────────────────────────────────────── */
+			.myTable tr.teamRow td {
+				padding: 7px 10px;
+				border: 1px solid #ddd;
+				white-space: nowrap;
+				text-align: center;
+			}
+			.myTable tr.teamRow td:nth-child(2) { text-align: left; font-weight: bold; }
+			.myTable tr.teamRow td:nth-child(3) { text-align: left; }
+			.myTable tr.teamRow:nth-child(even) td { background-color: #f9f9f9; }
+			.myTable tr.teamRow:hover td { background-color: #eef4fb; }
+			.myTable tr.teamRow td:first-child { border-right: none; width: 8px; padding: 0; }
+
+			/* waiver */
+			.myTable .waiver { color: #1a8fc4; font-weight: bold; }
+
+			/* trophy */
+			.myTable .trophyCell { color: #d4a800; }
+
+			/* ── THIS WEEK live cell ───────────────────────────────── */
+			.liveWin  { color: #27ae60; font-weight: bold; }
+			.liveLoss { color: #c0392b; font-weight: bold; }
+			.liveTie  { color: #e67e22; font-weight: bold; }
+			.liveVs   { color: #aaa; margin: 0 3px; font-weight: normal; }
+			.noFixture { color: #ccc; }
+
+			.liveCatTop {
+				position: absolute;
+				top: 68px;
+				right: 16px;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+			.liveCatLabel {
+				font-size: 13px;
+				color: #999;
+				font-style: italic;
+			}
+			.liveCatImg {
+				height: 28px;
+			}
+		</style>
+	</head>
+	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left" id="navBar">
+						<li>
+							<a href="/">Scoreboard</a>
+						</li>
+						<li class="active">
+							<a href="/leaguetable" class="leftBorder">League Table</a>
+						</li>
+						<li>
+							<a href="/finals" class="leftBorder">Finals</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container-fluid bodyStyle">
+			<div class="heading">
+				League Table
+			</div>
+			<div id="liveCatTop" class="liveCatTop" style="display:none;">
+				<img src="images/animal.gif" class="liveCatImg" alt="live" id="liveCatImg">
+				<span id="liveRoundLabel" class="liveCatLabel"></span>
+				<span id="lastUpdatedLabel" class="liveCatLabel" style="display:none;"></span>
+			</div>
+			<img class="loader" id="loader" src="images/animal.gif">
+			<div class="ltWrap" id="ltWrap" style="display:none;">
+				<table class="table myTable" id="ltTable"></table>
+			</div>
+		</div>
+	</body>
+</html>

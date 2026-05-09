@@ -107,11 +107,8 @@ function setRound(round) {
 	changeMatch(findMatchfromRound(round))
 }
 function nameMod (name) {
-	var currentTeamList = ["Crusaders", "Brumbies", "Hurricanes", "Chiefs", "Highlanders", "Blues", "Force", "Waratahs", "Reds", "Rebels", "Moana Pasifika", "Fijian Drua"];
+	var currentTeamList = ["Crusaders", "Brumbies", "Hurricanes", "Chiefs", "Highlanders", "Blues", "Force", "Waratahs", "Reds", "Moana Pasifika", "Fijian Drua"];
 
-	if(name==="Melbourne Rebels"){
-		return "Rebels";
-	}
 	if(name==="New South Wales Waratahs"){
 		return "Waratahs";
 	}
@@ -139,8 +136,8 @@ function getScore() {
 				}
 			}
 		}
-		document.getElementById("scoreHome").innerHTML = " " + teamA.score;
-		document.getElementById("scoreAway").innerHTML = teamB.score;
+		document.getElementById("scoreHome").innerHTML = teamA.score !== undefined ? " " + teamA.score : "";
+		document.getElementById("scoreAway").innerHTML = teamB.score !== undefined ? teamB.score : "";
 	})
 }
 
@@ -155,7 +152,7 @@ function getCurrentMatch(rnd) {
 	var currMatch = 0;
 	var found = false;
 	for (var i = 0; i < currData.length; i++) {
-		if (currData[i].round === rnd) {
+		if (currData[i].round === rnd && currData[i].homeaway === 'home') {
 			if (new Date(convertDate(currData[i].datetime)) < new Date()) {
 				currMatch = i;
 				found = true;
@@ -361,7 +358,7 @@ function roundsThisWeek() {
 	var teams = [];
 	console.log(gRound.draft);
 	for (var i = 0; i < currData.length; i++) {
-		if (currData[i].round === gRound.draft) {
+		if (currData[i].round === gRound.draft && currData[i].homeaway === 'home') {
 			console.log(currData[i].round, gRound.draft)
 			var homeTeam = nameSwap(currData[i]["Team 1"]);
 			var awayTeam = nameSwap(currData[i]["Team 2"]);
@@ -372,7 +369,7 @@ function roundsThisWeek() {
 	}
 
 	document.getElementById("games").innerHTML = navBar;
-	var currentTeamList = ["Crusaders", "Brumbies", "Hurricanes", "Chiefs", "Highlanders", "Blues", "Force", "Waratahs", "Reds", "Rebels", "Moana Pasifika", "Fijian Drua"];
+	var currentTeamList = ["Crusaders", "Brumbies", "Hurricanes", "Chiefs", "Highlanders", "Blues", "Force", "Waratahs", "Reds", "Moana Pasifika", "Fijian Drua"];
 	var byes = '';
 	var found = 0;
 	for (var i = 0; i < currentTeamList.length; i++) {
@@ -462,9 +459,6 @@ function chooseColour(team) {
 		case "Sunwolves":
 			colour = "#E60012"
 			break;
-		case "Rebels":
-			colour = "#234874"
-			break;
 	}
 	return colour;
 
@@ -530,12 +524,9 @@ function findMatchfromRound(rn) {
 }
 
 function convertDate(date) {
-	//flip the date to be in the correct format
-	//15/02/2019 06:35:00
-	//2019-02-15T06:35:00.000Z
 	date = date.split("/");
-	var day = date[0];
-	var month = date[1];
+	var day = ('0' + date[0]).slice(-2);
+	var month = ('0' + date[1]).slice(-2);
 	var year = date[2].split(" ");
 	date = year[0] + "-" + month + "-" + day;
 	time = year[1];
