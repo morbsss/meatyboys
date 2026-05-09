@@ -57,25 +57,27 @@ else:
     completed = 0
     for d in unique_dates:
         date_tag = d.strftime('%Y%m%d')
-        url = (
+        base_url = (
             'https://site.web.api.espn.com/apis/site/v2/sports/rugby/scorepanel'
-            f'?contentorigin=espn&dates={date_tag}&lang=en&region=us'
+            f'?contentorigin=espn&dates={date_tag}&lang=en'
         )
         try:
-            resp = requests.get(url, timeout=15)
-            body = resp.json()
-            if body.get('scores'):
-                leg = {}
-                for item in body['scores']:
+            leg = {}
+            for region in ('au', 'us', 'gb'):
+                resp = requests.get(base_url + f'&region={region}', timeout=15)
+                body = resp.json()
+                for item in body.get('scores', []):
                     leagues = item.get('leagues', [])
                     if leagues and leagues[0].get('name') == 'Super Rugby Pacific':
                         leg = item
                         break
-                comps = leg.get('events') or []
-                for comp in comps:
-                    competitors = comp['competitions'][0]['competitors']
-                    score_arr.append(competitors[0])
-                    score_arr.append(competitors[1])
+                if leg:
+                    break
+            comps = leg.get('events') or []
+            for comp in comps:
+                competitors = comp['competitions'][0]['competitors']
+                score_arr.append(competitors[0])
+                score_arr.append(competitors[1])
         except Exception as e:
             print(f'Scoreboard API error for {date_tag}: {e}')
         completed += 1

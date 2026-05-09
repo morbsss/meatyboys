@@ -18,7 +18,7 @@ def run(script):
 
 run('get_cookie.py')
 run('save_round.py')
-run('save_draft.py')
+# run('save_draft.py')
 run('get_player_scores.py')
 run('save_scoreboard.py')
 run('save_leaguetable.py')

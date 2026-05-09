@@ -136,8 +136,8 @@ function getScore() {
 				}
 			}
 		}
-		document.getElementById("scoreHome").innerHTML = " " + teamA.score;
-		document.getElementById("scoreAway").innerHTML = teamB.score;
+		document.getElementById("scoreHome").innerHTML = teamA.score !== undefined ? " " + teamA.score : "";
+		document.getElementById("scoreAway").innerHTML = teamB.score !== undefined ? teamB.score : "";
 	})
 }
 
