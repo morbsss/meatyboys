@@ -51,10 +51,25 @@ function renderTable(data) {
     document.getElementById('ltTable').innerHTML = rows;
 
     if (data.live) {
+        document.getElementById('liveCatImg').style.display = '';
         document.getElementById('liveRoundLabel').textContent = data.lastUpdated || '';
+        document.getElementById('liveRoundLabel').style.display = '';
+        document.getElementById('lastUpdatedLabel').style.display = 'none';
         document.getElementById('liveCatTop').style.display = 'flex';
     } else {
-        document.getElementById('liveCatTop').style.display = 'none';
+        document.getElementById('liveCatImg').style.display = 'none';
+        document.getElementById('liveRoundLabel').style.display = 'none';
+        if (data.lastFetch) {
+            var d = new Date(data.lastFetch);
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            var label = '* last updated ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' +
+                        ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+            document.getElementById('lastUpdatedLabel').textContent = label;
+            document.getElementById('lastUpdatedLabel').style.display = '';
+            document.getElementById('liveCatTop').style.display = 'flex';
+        } else {
+            document.getElementById('liveCatTop').style.display = 'none';
+        }
     }
 
     // reveal table, hide loader (same pattern as main.js)

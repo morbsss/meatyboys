@@ -275,6 +275,12 @@ def get_live_table():
     for conf in result['conferences']:
         conf['teams'].sort(key=lambda t: t['rank'])
 
+    try:
+        last_fetch = read_json_file(DATA_DIR / 'lastfetch.json')
+        result['lastFetch'] = last_fetch.get('time', '')
+    except Exception:
+        result['lastFetch'] = ''
+
     result['live']        = is_live
     result['liveRound']   = current_round
     result['lastUpdated'] = f'LIVE — Round {current_round}'
