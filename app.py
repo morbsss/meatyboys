@@ -31,7 +31,8 @@ USERS = [
     {'usr': 'all',              'code': 'HACKIN'},   # all user must be at end
 ]
 
-SELECTION_TIME_MS = 92 * 1000
+SELECTION_TIME_MS  = 92 * 1000
+FINALS_START_ROUND = 14        # rounds 14+ are finals — league table freezes
 
 file_lock = threading.Lock()
 
@@ -363,6 +364,22 @@ def get_live_table():
     try:
         round_data = read_json_file(DATA_DIR / 'round.json')
         current_round = round_data.get('round', 1)
+    except Exception:
+        base['live'] = False
+        return jsonify(base)
+
+    # Finals rounds: freeze the league table — no live scores, no TO GO, no THIS WEEK
+    if current_round >= FINALS_START_ROUND:
+        try:
+            base['lastFetch'] = read_json_file(DATA_DIR / 'lastfetch.json').get('time', '')
+        except Exception:
+            base['lastFetch'] = ''
+        base['live']        = False
+        base['liveRound']   = current_round
+        base['lastUpdated'] = ''
+        return jsonify(base)
+
+    try:
         draft_data = read_json_file(DATA_DIR / f'draft{current_round}.json')
     except Exception:
         base['live'] = False

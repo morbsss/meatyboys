@@ -138,7 +138,31 @@ function getScore() {
 		}
 		document.getElementById("scoreHome").innerHTML = teamA.score !== undefined ? " " + teamA.score : "";
 		document.getElementById("scoreAway").innerHTML = teamB.score !== undefined ? teamB.score : "";
+		document.getElementById("mobTabScore0").innerHTML = teamA.score !== undefined ? teamA.score : "&mdash;";
+		document.getElementById("mobTabScore1").innerHTML = teamB.score !== undefined ? teamB.score : "&mdash;";
 	})
+}
+
+function mobSwitchTab(idx) {
+	[0, 1].forEach(function(i) {
+		document.getElementById('mobTab'  + i).classList.toggle('active', i === idx);
+		document.getElementById('mobTeam' + i).classList.toggle('active', i === idx);
+	});
+}
+
+function buildMobRow(p, color) {
+	if (!p.name) return '';
+	var isBench = p.owner && p.owner.indexOf('Bench') > -1;
+	var owner   = p.owner ? p.owner.replace(' (Bench)', '') : '';
+	var score   = (p.score !== '' && p.score !== undefined && p.score !== null) ? p.score : '&mdash;';
+	return '<div class="mob-player-row' + (isBench ? ' bench-row' : '') + '" style="border-left-color:' + color + '">' +
+		'<span class="mob-player-pos">' + (p.posName || '') + '</span>' +
+		'<div class="mob-player-info">' +
+			'<div class="mob-player-name">' + (p.name || '') + (p.status ? ' <i class="' + p.status + '"></i>' : '') + '</div>' +
+			(owner ? '<div class="mob-player-owner">' + owner + '</div>' : '') +
+		'</div>' +
+		'<span class="mob-player-score">' + score + '</span>' +
+		'</div>';
 }
 
 function nameSwap(name) {
@@ -325,6 +349,16 @@ function fillData() {
 	document.getElementById("loader").style.display = "none";
 
 	table.innerHTML = list;
+
+	// Mobile tabs
+	document.getElementById('mobTabName0').textContent = team1Name;
+	document.getElementById('mobTabName1').textContent = team2Name;
+	var mob0 = '', mob1 = '';
+	for (var i = 0; i < team1.length; i++) mob0 += buildMobRow(team1[i], lColor);
+	for (var i = 0; i < team2.length; i++) mob1 += buildMobRow(team2[i], rColor);
+	document.getElementById('mobTeam0').innerHTML = mob0;
+	document.getElementById('mobTeam1').innerHTML = mob1;
+
 	setZoom();
 }
 

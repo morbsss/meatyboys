@@ -1,6 +1,7 @@
 """Fetch individual player scores for the current round and update the draft file."""
 import json
 import os
+from datetime import datetime, timezone
 
 import requests
 
@@ -80,5 +81,8 @@ for i, player in enumerate(dps):
 out_path = os.path.join(DATA_DIR, f'draft{round_no}.json')
 with open(out_path, 'w') as f:
     json.dump(dps, f)
+
+with open(os.path.join(DATA_DIR, 'lastfetch.json'), 'w') as f:
+    json.dump({'time': datetime.now(timezone.utc).isoformat(timespec='seconds')}, f)
 
 print(f'Saved! {round_no}')

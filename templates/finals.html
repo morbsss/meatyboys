@@ -6,6 +6,7 @@
 		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 		<link rel="icon" href="favicon.ico" type="image/x-icon">
 		<meta name="description" content="Meaty Boys Cup">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
@@ -41,11 +42,11 @@
 				overflow: hidden;
 			}
 
-			/* ── CSS grid: 5 cols × 3 rows ──────────────────────────── */
+			/* ── CSS grid: 5 cols × 4 rows ──────────────────────────── */
 			.bgrid {
 				display: grid;
 				grid-template-columns: 1fr 32px minmax(130px, 180px) 32px 1fr;
-				grid-template-rows: 44px 64px 64px;
+				grid-template-rows: 44px 64px 8px 64px;
 				padding: 16px 14px 8px;
 				gap: 3px 0;
 			}
@@ -95,31 +96,55 @@
 			.bar-score { font-size: 18px; font-weight: bold; flex-shrink: 0; }
 
 			/* ── bracket arms (pseudo-element lines centred in each row) ── */
-			.aul, .all, .aur, .alr { position: relative; align-self: stretch; }
+			.aul, .all, .aur, .alr, .aml, .amr { position: relative; align-self: stretch; }
 
 			/* Upper-left: horizontal from team-A-centre → bottom-right corner */
 			.aul::before {
 				content: ''; position: absolute;
-				top: 50%; left: 0; right: 0; bottom: -4px;
+				top: 50%; left: 0; right: 50%; bottom: -4px;
 				border-top: 2px solid #ccc; border-right: 2px solid #ccc;
 			}
 			/* Lower-left: top-right corner → horizontal to team-B-centre */
 			.all::before {
 				content: ''; position: absolute;
-				top: -4px; left: 0; right: 0; bottom: 50%;
+				top: -4px; left: 0; right: 50%; bottom: 50%;
 				border-bottom: 2px solid #ccc; border-right: 2px solid #ccc;
 			}
 			/* Upper-right mirror */
 			.aur::before {
 				content: ''; position: absolute;
-				top: 50%; left: 0; right: 0; bottom: -4px;
+				top: 50%; left: 50%; right: 0; bottom: -4px;
 				border-top: 2px solid #ccc; border-left: 2px solid #ccc;
 			}
 			/* Lower-right mirror */
 			.alr::before {
 				content: ''; position: absolute;
-				top: -4px; left: 0; right: 0; bottom: 50%;
+				top: -4px; left: 50%; right: 0; bottom: 50%;
 				border-bottom: 2px solid #ccc; border-left: 2px solid #ccc;
+			}
+
+			/* middle-left: vertical through middle row + horizontal →  final box */
+			.aml::before {
+				content: ''; position: absolute;
+				top: -4px; left: calc(50% - 2px); bottom: -4px; width: 2px;
+				background: #ccc;
+			}
+			.aml::after {
+				content: ''; position: absolute;
+				top: calc(50% - 1px); left: 50%; right: -4px; height: 2px;
+				background: #ccc;
+			}
+
+			/* middle-right: vertical through middle row + horizontal ← final box */
+			.amr::before {
+				content: ''; position: absolute;
+				top: -4px; left: 49%; bottom: -4px; width: 2px;
+				background: #ccc;
+			}
+			.amr::after {
+				content: ''; position: absolute;
+				top: calc(50% - 1px); left: 0; right: 50%; height: 2px;
+				background: #ccc;
 			}
 
 			/* ── result banner ──────────────────────────────────────── */
@@ -183,6 +208,37 @@
 			}
 			.liveCatImg { height: 28px; }
 
+			/* ── bottom nav (mobile only) ───────────────────────────── */
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom  { display: none; }
+				.bodyStyle { padding-top: 8px !important; }
+				body { padding-bottom: 56px; }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 13px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.5px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+			}
+
 			/* ── mobile ─────────────────────────────────────────────── */
 			@media (max-width: 767px) {
 				.bgrid {
@@ -194,6 +250,9 @@
 				.bar-score { font-size: 15px; }
 				.bar-name  { font-size: 11px; }
 				.bdown-scores { display: none; }
+				/* mobile row height = 56px, gap = 3px → offset = 56/2 + 3 = 31px */
+				.all::after { top: -31px; }
+				.aur::after { bottom: -31px; }
 			}
 		</style>
 	</head>
@@ -231,6 +290,11 @@
 				<div id="champSection"></div>
 				<div id="sackoSection"></div>
 			</div>
+		</div>
+		<div class="bottom-nav">
+			<a href="/">Scoreboard</a>
+			<a href="/leaguetable">League Table</a>
+			<a href="/finals" class="active">Finals</a>
 		</div>
 	</body>
 </html>

@@ -20,8 +20,9 @@
 # Scoreboard every minute on Fri/Sat/Sun
 * * * * 5,6,0 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_scoreboard.py >> /root/meatyboys/cron.log 2>&1
 
-# Scoreboard every 2 hrs on Mon-Thu
+# Scoreboard every 2 hrs on Mon-Thu + explicit 7am Monday refresh
 0 */2 * * 1,2,3,4 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_scoreboard.py >> /root/meatyboys/cron.log 2>&1
+0 7 * * 1 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_scoreboard.py >> /root/meatyboys/cron.log 2>&1
 
 # Refresh login cookie daily at 5pm
 0 17 * * * /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/get_cookie.py >> /root/meatyboys/cron.log 2>&1
@@ -29,5 +30,6 @@
 # League table every minute on Fri/Sat/Sun
 * * * * 5,6,0 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_leaguetable.py >> /root/meatyboys/cron.log 2>&1
 
-# League table every 2 hrs on Mon-Thu
+# League table every 2 hrs on Mon-Thu + explicit 7am Monday refresh
 0 */2 * * 1,2,3,4 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_leaguetable.py >> /root/meatyboys/cron.log 2>&1
+0 7 * * 1 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_leaguetable.py >> /root/meatyboys/cron.log 2>&1

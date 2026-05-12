@@ -71,7 +71,7 @@ function buildSection(data, isSacko) {
     var html = '<div class="sec-title ' + cls + '">' + titleText + '</div>';
     html += '<div class="bracket-wrap">';
 
-    // CSS grid: 5 columns × 3 rows
+    // CSS grid: 5 columns × 4 rows
     html += '<div class="bgrid">';
 
     // Row 1: labels
@@ -88,7 +88,14 @@ function buildSection(data, isSacko) {
     html += '<div class="arm aur"></div>';
     html += s2A;
 
-    // Row 3: team B | arm-lower | finalist 2 | arm-lower | team B
+    // Row 3: middle connector — bracket midpoints join and point to the finals
+    html += '<div></div>';
+    html += '<div class="arm aml"></div>';
+    html += '<div></div>';
+    html += '<div class="arm amr"></div>';
+    html += '<div></div>';
+
+    // Row 4: team B | arm-lower | finalist 2 | arm-lower | team B
     html += s1B;
     html += '<div class="arm all"></div>';
     html += fBar2;

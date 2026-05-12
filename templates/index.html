@@ -8,7 +8,7 @@
 			<link rel="icon" href="favicon.ico" type="image/x-icon">
 			<meta name="description" content="Meaty Boys Cup">
 			<meta name="author" content="SitePoint">
-			<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+			<meta name="viewport" content="width=device-width, initial-scale=1">
 			<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
 			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 			<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
@@ -82,6 +82,89 @@
         border-color:#9d9d9d;
         border-left-style: solid;
     }
+    .bottom-nav { display: none; }
+    @media (max-width: 767px) {
+        #navZoom    { display: none; }
+        .bodyStyle  { padding-top: 0 !important; }
+        body        { padding-bottom: 56px; }
+        /* hide desktop layout */
+        #playerTable { display: none; }
+        .heading     { display: none; }
+        /* bottom nav */
+        .bottom-nav {
+            display: flex;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 56px;
+            background: #222;
+            z-index: 1030;
+            border-top: 1px solid #444;
+        }
+        .bottom-nav a {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9d9d9d;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .bottom-nav a + a { border-left: 1px solid #444; }
+        .bottom-nav a.active { color: #fff; background: #2d2d2d; }
+        /* mobile team tabs */
+        .mob-tabs {
+            display: flex;
+            border-bottom: 2px solid #e8e8e8;
+        }
+        .mob-tab {
+            flex: 1;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .mob-tab.active      { border-bottom-color: #1a7a3c; }
+        .mob-tab-name        { font-size: 15px; font-weight: bold; color: #333; }
+        .mob-tab.active .mob-tab-name  { color: #1a7a3c; }
+        .mob-tab-score       { font-size: 28px; font-weight: bold; color: #555; margin-top: 2px; }
+        .mob-tab.active .mob-tab-score { color: #1a7a3c; }
+        /* mobile player list */
+        .mob-team            { display: none; }
+        .mob-team.active     { display: block; }
+        .mob-player-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            border-left: 4px solid #ccc;
+            gap: 10px;
+        }
+        .mob-player-row.bench-row { opacity: 0.55; }
+        .mob-player-pos {
+            width: 34px;
+            font-size: 9px;
+            font-weight: bold;
+            color: #fff;
+            background: #aaa;
+            border-radius: 3px;
+            text-align: center;
+            padding: 2px 0;
+            flex-shrink: 0;
+        }
+        .mob-player-info  { flex: 1; min-width: 0; }
+        .mob-player-name  { font-size: 14px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mob-player-owner { font-size: 11px; color: #999; margin-top: 2px; }
+        .mob-player-score { font-size: 20px; font-weight: bold; width: 48px; text-align: right; flex-shrink: 0; color: #222; }
+    }
+    @media (min-width: 768px) {
+        .mob-tabs, .mob-teams { display: none; }
+    }
     .tValh{
       font-size:200%;
       padding-right:15%;
@@ -144,8 +227,27 @@
 				<span class="titleA"  id="awayT" >Away</span>
 			</div>
 			<img class="loader" id="loader" src="images/animal.gif">
+			<div class="mob-tabs" id="mobTabs">
+				<div class="mob-tab active" id="mobTab0" onclick="mobSwitchTab(0)">
+					<div class="mob-tab-name" id="mobTabName0">Home</div>
+					<div class="mob-tab-score" id="mobTabScore0">&mdash;</div>
+				</div>
+				<div class="mob-tab" id="mobTab1" onclick="mobSwitchTab(1)">
+					<div class="mob-tab-name" id="mobTabName1">Away</div>
+					<div class="mob-tab-score" id="mobTabScore1">&mdash;</div>
+				</div>
+			</div>
+			<div class="mob-teams" id="mobTeams">
+				<div class="mob-team active" id="mobTeam0"></div>
+				<div class="mob-team" id="mobTeam1"></div>
+			</div>
 			<table  class="table myTable" id="playerTable" >
 			</table>
+		</div>
+		<div class="bottom-nav">
+			<a href="/" class="active">Scoreboard</a>
+			<a href="/leaguetable">League Table</a>
+			<a href="/finals">Finals</a>
 		</div>
 	</body>
 </html>

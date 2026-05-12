@@ -6,7 +6,7 @@
 		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 		<link rel="icon" href="favicon.ico" type="image/x-icon">
 		<meta name="description" content="Meaty Boys Cup">
-		<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
@@ -30,6 +30,35 @@
 				border-left: 2px;
 				border-color: #9d9d9d;
 				border-left-style: solid;
+			}
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom  { display: none; }
+				.bodyStyle { padding-top: 8px !important; }
+				body { padding-bottom: 56px; }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 13px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.5px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
 			}
 			.ltWrap { overflow-x: auto; }
 
@@ -128,6 +157,11 @@
 			<div class="ltWrap" id="ltWrap" style="display:none;">
 				<table class="table myTable" id="ltTable"></table>
 			</div>
+		</div>
+		<div class="bottom-nav">
+			<a href="/">Scoreboard</a>
+			<a href="/leaguetable" class="active">League Table</a>
+			<a href="/finals">Finals</a>
 		</div>
 	</body>
 </html>

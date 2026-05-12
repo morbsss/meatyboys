@@ -1,9 +1,7 @@
 """Run all data-fetch scripts in sequence to update local JSON files."""
-import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
 
 SCRIPTS_DIR = os.path.dirname(__file__)
 ROOT = os.path.join(SCRIPTS_DIR, '..')
@@ -25,8 +23,5 @@ run('save_round.py')
 run('get_player_scores.py')
 run('save_scoreboard.py')
 run('save_leaguetable.py')
-
-with open(os.path.join(DATA_DIR, 'lastfetch.json'), 'w') as f:
-    json.dump({'time': datetime.now(timezone.utc).isoformat()}, f)
 
 print('\nDone. Live data saved. Run: python app.py')
