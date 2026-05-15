@@ -77,7 +77,7 @@ function buildSection(data, isSacko) {
     // Row 1: labels
     html += '<div class="lbl semi-lbl">SEMI-FINAL</div>';
     html += '<div></div>';
-    html += '<div class="lbl final-lbl">' + trophyIcon + '<br>' + finalLabel + '</div>';
+    html += '<div class="lbl final-lbl"><span class="final-emoji">' + trophyIcon + '</span><br>' + finalLabel + '</div>';
     html += '<div></div>';
     html += '<div class="lbl semi-lbl">SEMI-FINAL</div>';
 
@@ -143,7 +143,6 @@ function teamBar(name, rank, score, highlighted, cls) {
     }
     var hi = highlighted ? ' hi' : ' dim';
     return '<div class="bar ' + cls + hi + '">' +
-        '<div class="bar-seed">' + (rank || '') + '</div>' +
         '<span class="bar-name">' + name + '</span>' +
         '<span class="bar-score">' + fmt(score) + '</span>' +
         '</div>';
@@ -182,7 +181,6 @@ function breakdown(s1, s2, isSacko) {
     function teamLine(name, rank, r14, r15, agg) {
         if (!name) return '';
         return '<div class="bdown-row">' +
-            '<span class="bdown-seed ' + cls + '">' + (rank || '') + '</span>' +
             '<span class="bdown-name">' + name + '</span>' +
             '<span class="bdown-scores">R14: ' + fmt(r14) +
             ' &nbsp; R15: ' + fmt(r15) +

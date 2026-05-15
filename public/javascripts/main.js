@@ -136,33 +136,16 @@ function getScore() {
 				}
 			}
 		}
-		document.getElementById("scoreHome").innerHTML = teamA.score !== undefined ? " " + teamA.score : "";
-		document.getElementById("scoreAway").innerHTML = teamB.score !== undefined ? teamB.score : "";
-		document.getElementById("mobTabScore0").innerHTML = teamA.score !== undefined ? teamA.score : "&mdash;";
-		document.getElementById("mobTabScore1").innerHTML = teamB.score !== undefined ? teamB.score : "&mdash;";
+		var homeScore = teamA.score !== undefined ? teamA.score : "—";
+		var awayScore = teamB.score !== undefined ? teamB.score : "—";
+		var homeColor = chooseColour(nameSwap(currGame["Team 1"]));
+		var awayColor = chooseColour(nameSwap(currGame["Team 2"]));
+
+		document.getElementById("scoreHome").innerHTML = homeScore;
+		document.getElementById("scoreHome").style.color = homeColor;
+		document.getElementById("scoreAway").innerHTML = awayScore;
+		document.getElementById("scoreAway").style.color = awayColor;
 	})
-}
-
-function mobSwitchTab(idx) {
-	[0, 1].forEach(function(i) {
-		document.getElementById('mobTab'  + i).classList.toggle('active', i === idx);
-		document.getElementById('mobTeam' + i).classList.toggle('active', i === idx);
-	});
-}
-
-function buildMobRow(p, color) {
-	if (!p.name) return '';
-	var isBench = p.owner && p.owner.indexOf('Bench') > -1;
-	var owner   = p.owner ? p.owner.replace(' (Bench)', '') : '';
-	var score   = (p.score !== '' && p.score !== undefined && p.score !== null) ? p.score : '&mdash;';
-	return '<div class="mob-player-row' + (isBench ? ' bench-row' : '') + '" style="border-left-color:' + color + '">' +
-		'<span class="mob-player-pos">' + (p.posName || '') + '</span>' +
-		'<div class="mob-player-info">' +
-			'<div class="mob-player-name">' + (p.name || '') + (p.status ? ' <i class="' + p.status + '"></i>' : '') + '</div>' +
-			(owner ? '<div class="mob-player-owner">' + owner + '</div>' : '') +
-		'</div>' +
-		'<span class="mob-player-score">' + score + '</span>' +
-		'</div>';
 }
 
 function nameSwap(name) {
@@ -193,8 +176,8 @@ function fillData() {
 	var homeName = nameSwap(currData[gRound.match]["Team 1"]);
 	var awayName = nameSwap(currData[gRound.match]["Team 2"]);
 	document.getElementById("round").innerHTML = "Round " + ((gRound.draft)) + '<span class="caret"></span>';
-	document.getElementById("homeT").innerHTML = homeName + '<span id="scoreHome"></span>';
-	document.getElementById("awayT").innerHTML = '<span id="scoreAway"></span> ' + awayName;
+	document.getElementById("homeT").innerHTML = homeName;
+	document.getElementById("awayT").innerHTML = awayName;
 	getScore();
 	var team1 = [];
 	var team2 = [];
@@ -295,45 +278,29 @@ function fillData() {
 
 	for (var i = 0; i < team1.length; i++) {
 		list = list + '<tr class="myRow">\
-			<td width="5%" style="background-color:'+ lColor + '">\
-			<div class="rOwner">\
-			'+ team1[i].owner + '\
-			</div>\
-			</td >\
-			<td width="5%" style="background-color:'+ lColor + '">\
-			<div class="rScore">\
-			'+ team1[i].score + '\
-			</div>\
-			</td>\
-			<td width="31%" style="background-color:'+ lColor + '">\
-			<div class="rName">\
-			'+ team1[i].name + '<i style="font-size:20px" class="' + team1[i].status + '"></i>\
-			</div>\
-			</td>\
-			<td width="5%" class="rImg" style="background-color:'+ lColor + '">\
-			'+ team1[i].img + '\
-			</td>\
 			<td width="3%" style="background-color:'+ lColor + '">\
 			<div class="verticaltext">\
 			'+ team1[i].posName + '\
 			</div>\
 			</td>\
+			<td width="24%" style="background-color:'+ lColor + '">\
+			<div class="rName">\
+			'+ team1[i].name + '\
+			</div>\
+			</td>\
+			<td width="5%" style="background-color:'+ lColor + '">\
+			<div style="text-align:center;font-size:20px;">\
+			<i class="' + team1[i].status + '"></i>\
+			</div>\
+			</td>\
+			<td width="5%" style="background-color:'+ lColor + '">\
+			<div class="rScore">\
+			'+ team1[i].score + '\
+			</div>\
+			</td>\
 			<td width="2%" >\
 			<br>\
 			VS\
-			</td>\
-			<td width="3%"  style="background-color:'+ rColor + '">\
-			<div class="verticaltext">\
-			'+ team2[i].posName + '\
-			</div>\
-			</td>\
-			<td width="5%"  class="rImg" style="background-color:'+ rColor + '">\
-			'+ team2[i].img + '\
-			</td>\
-			<td width="31%" style="background-color:'+ rColor + '">\
-			<div class="rName">\
-			'+ team2[i].name + '<i style="font-size:20px" class="' + team2[i].status + '"></i>\
-			</div>\
 			</td>\
 			<td width="5%"style="background-color:'+ rColor + '">\
 			<div class="rScore">\
@@ -341,23 +308,24 @@ function fillData() {
 			</div>\
 			</td>\
 			<td width="5%" style="background-color:'+ rColor + '">\
-			<div class="rOwner">\
-			'+ team2[i].owner + '\
+			<div style="text-align:center;font-size:20px;">\
+			<i class="' + team2[i].status + '"></i>\
+			</div>\
+			</td>\
+			<td width="24%" style="background-color:'+ rColor + '">\
+			<div class="rName">\
+			'+ team2[i].name + '\
+			</div>\
+			</td>\
+			<td width="3%"  style="background-color:'+ rColor + '">\
+			<div class="verticaltext">\
+			'+ team2[i].posName + '\
 			</div>\
 			</td>\
 		</tr>'}
 	document.getElementById("loader").style.display = "none";
 
 	table.innerHTML = list;
-
-	// Mobile tabs
-	document.getElementById('mobTabName0').textContent = team1Name;
-	document.getElementById('mobTabName1').textContent = team2Name;
-	var mob0 = '', mob1 = '';
-	for (var i = 0; i < team1.length; i++) mob0 += buildMobRow(team1[i], lColor);
-	for (var i = 0; i < team2.length; i++) mob1 += buildMobRow(team2[i], rColor);
-	document.getElementById('mobTeam0').innerHTML = mob0;
-	document.getElementById('mobTeam1').innerHTML = mob1;
 
 	setZoom();
 }

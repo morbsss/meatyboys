@@ -27,7 +27,7 @@ Write-Host ""
 Write-Host "=== Meaty Boys — Deploying to $VM_IP ===" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "You will be prompted for the VM password at each step."
-Write-Host "To avoid this, set up SSH key auth (see bottom of this file)."
+Write-Host "To avoid this, set up SSH key auth - see bottom of this file."
 Write-Host ""
 
 # ── STEP 1: Create directory structure on VM ──────────────────────────────────

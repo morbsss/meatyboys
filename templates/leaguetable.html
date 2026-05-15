@@ -59,6 +59,18 @@
 				}
 				.bottom-nav a + a { border-left: 1px solid #444; }
 				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+				/* live indicator — flow inline, right-aligned, smaller on mobile */
+				.liveCatTop {
+					position: static;
+					justify-content: flex-end;
+					flex-wrap: wrap;
+					margin: 2px 10px 6px auto;
+					padding: 0;
+					gap: 2px 4px;
+					text-align: right;
+				}
+				.liveCatLabel { font-size: 10px; }
+				.liveCatImg   { height: 16px; }
 			}
 			.ltWrap { overflow-x: auto; }
 
