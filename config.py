@@ -1,5 +1,5 @@
 """
-App configuration — imported by app.py.
+App configuration - imported by app.py.
 
 ━━━ LOCAL DEVELOPMENT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   1. cp .env.example .env
@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).parent
 
 # ── Flask ──────────────────────────────────────────────────────────────────────
 
-# PRODUCTION ▶ set to a long random string — never commit the real value
+# PRODUCTION ▶ set to a long random string - never commit the real value
 # Generate: python -c "import secrets; print(secrets.token_hex(32))"
 SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 

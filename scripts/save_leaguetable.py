@@ -112,7 +112,7 @@ def main():
     html = fetch_standings_html()
     conferences = parse_standings(html)
     if not conferences:
-        print('Could not parse standings — leaving existing leaguetable.json unchanged.')
+        print('Could not parse standings - leaving existing leaguetable.json unchanged.')
         return
 
     result = {

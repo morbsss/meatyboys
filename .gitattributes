@@ -1,0 +1,5 @@
+# Shell scripts and nginx configs must use LF line endings - they run on Linux
+# and CRLF causes "$'\r': command not found" / "invalid option" errors in bash.
+*.sh        text eol=lf
+*.conf      text eol=lf
+deploy.sh   text eol=lf

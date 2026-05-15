@@ -110,10 +110,23 @@
         border-left-style: solid;
     }
     .bottom-nav { display: none; }
+    .round-dropdown-mobile { display: none; }
     @media (max-width: 767px) {
         #navZoom    { display: none; }
         .bodyStyle  { padding-top: 0 !important; }
         body        { padding-bottom: 56px; }
+        .round-dropdown-mobile {
+            display: block;
+            width: calc(100% - 24px);
+            margin: 8px 12px 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            color: #333;
+        }
         /* scaled-down desktop layout */
         .heading {
             gap: 10px;
@@ -211,15 +224,16 @@
 			</div>
 		</nav>
 		<div class="container-fluid bodyStyle" id="dashSpace" >
+			<select id="roundDropdown" class="round-dropdown-mobile" onchange="setRound(parseInt(this.value))"></select>
 			<div class="heading">
 				<div class="score-section">
 					<div class="score-section-name" id="homeT">Home</div>
-					<div class="score-display" id="scoreHome" style="color: #333;">—</div>
+					<div class="score-display" id="scoreHome" style="color: #333;">-</div>
 				</div>
 				<div class="vs-divider">VS</div>
 				<div class="score-section">
 					<div class="score-section-name" id="awayT">Away</div>
-					<div class="score-display" id="scoreAway" style="color: #333;">—</div>
+					<div class="score-display" id="scoreAway" style="color: #333;">-</div>
 				</div>
 			</div>
 			<img class="loader" id="loader" src="images/animal.gif">

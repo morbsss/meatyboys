@@ -62,10 +62,14 @@ function getDraft() {
 }
 function listRounds(noRounds) {
 	var roundList = '';
+	var dropdownOptions = '';
 	for (var i = 0; i < noRounds; i++) {
 		roundList = roundList + '<li><a href="javascript:;" onclick="setRound(' + ((i + 1)) + ')" id="priceChanges" data-toggle="collapse" data-target=".navbar-collapse.in" >Round ' + (i + 1) + '</a></li>'
+		dropdownOptions += '<option value="' + (i + 1) + '">Round ' + (i + 1) + '</option>';
 	}
 	document.getElementById("roundList").innerHTML = roundList;
+	var dd = document.getElementById("roundDropdown");
+	if (dd) dd.innerHTML = dropdownOptions;
 }
 
 function toggleSortBy() {
@@ -136,8 +140,8 @@ function getScore() {
 				}
 			}
 		}
-		var homeScore = teamA.score !== undefined ? teamA.score : "—";
-		var awayScore = teamB.score !== undefined ? teamB.score : "—";
+		var homeScore = teamA.score !== undefined ? teamA.score : "-";
+		var awayScore = teamB.score !== undefined ? teamB.score : "-";
 		var homeColor = chooseColour(nameSwap(currGame["Team 1"]));
 		var awayColor = chooseColour(nameSwap(currGame["Team 2"]));
 
@@ -176,6 +180,8 @@ function fillData() {
 	var homeName = nameSwap(currData[gRound.match]["Team 1"]);
 	var awayName = nameSwap(currData[gRound.match]["Team 2"]);
 	document.getElementById("round").innerHTML = "Round " + ((gRound.draft)) + '<span class="caret"></span>';
+	var rd = document.getElementById("roundDropdown");
+	if (rd) rd.value = gRound.draft;
 	document.getElementById("homeT").innerHTML = homeName;
 	document.getElementById("awayT").innerHTML = awayName;
 	getScore();

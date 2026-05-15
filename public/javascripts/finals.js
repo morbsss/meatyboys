@@ -88,7 +88,7 @@ function buildSection(data, isSacko) {
     html += '<div class="arm aur"></div>';
     html += s2A;
 
-    // Row 3: middle connector — bracket midpoints join and point to the finals
+    // Row 3: middle connector - bracket midpoints join and point to the finals
     html += '<div></div>';
     html += '<div class="arm aml"></div>';
     html += '<div></div>';
@@ -118,23 +118,55 @@ function isHighlighted(semi, side, isSacko) {
     if (!semi || !semi.hasData) return false;
     var agg = semi.aggregate;
     if (agg.a === null) return false;
-    if (!isSacko) return side === 'A' ? agg.a >= agg.b : agg.b > agg.a;
-    return side === 'A' ? agg.a <= agg.b : agg.b < agg.a;
+    
+    if (!isSacko) {
+        // Championship: highlight winner (higher score), use PF as tiebreaker
+        if (agg.a !== agg.b) {
+            return side === 'A' ? agg.a > agg.b : agg.b > agg.a;
+        } else {
+            // Tie: highlight team with higher PF
+            return side === 'A' ? semi.pfA >= semi.pfB : semi.pfB > semi.pfA;
+        }
+    } else {
+        // Sacko: highlight loser (lower score), use PF as tiebreaker
+        if (agg.a !== agg.b) {
+            return side === 'A' ? agg.a < agg.b : agg.b < agg.a;
+        } else {
+            // Tie: highlight team with lower PF (opposite of championship)
+            return side === 'A' ? semi.pfA <= semi.pfB : semi.pfB < semi.pfA;
+        }
+    }
 }
 
 function isFinalWinner(final_, side, isSacko) {
     var r = final_.round16;
     if (r.a === null || r.b === null) return false;
-    if (!isSacko) return side === 'A' ? r.a >= r.b : r.b > r.a;
-    return side === 'A' ? r.a <= r.b : r.b < r.a;
+    if (!isSacko) return side === 'A' ? r.a > r.b : r.b > r.a;  // Championship: winner has higher final score
+    return side === 'A' ? r.a < r.b : r.b < r.a;  // Sacko: winner has lower final score (the actual loser)
 }
 
 function finalist(semi, isSacko) {
     if (!semi || !semi.hasData) return null;
     var agg = semi.aggregate;
     if (agg.a === null) return null;
-    if (!isSacko) return agg.a >= agg.b ? semi.teamA : semi.teamB;
-    return agg.a <= agg.b ? semi.teamA : semi.teamB;
+    
+    if (!isSacko) {
+        // Championship: winner (higher score), use PF as tiebreaker
+        if (agg.a !== agg.b) {
+            return agg.a > agg.b ? semi.teamA : semi.teamB;
+        } else {
+            // Tie: team with higher PF advances
+            return semi.pfA >= semi.pfB ? semi.teamA : semi.teamB;
+        }
+    } else {
+        // Sacko: loser (lower score), use PF as tiebreaker
+        if (agg.a !== agg.b) {
+            return agg.a < agg.b ? semi.teamA : semi.teamB;
+        } else {
+            // Tie: team with lower PF advances
+            return semi.pfA <= semi.pfB ? semi.teamA : semi.teamB;
+        }
+    }
 }
 
 function teamBar(name, rank, score, highlighted, cls) {
@@ -153,7 +185,7 @@ function finalBar(name, score, cls, isWinner, isSacko) {
         return '<div class="bar fin-bar tbd-bar"><span class="bar-name">TBD</span></div>';
     }
     // In final: winner = champion (champ bracket) or loser = sacko (sacko bracket)
-    var hi = isWinner ? ' hi' : '';
+    var hi = isWinner ? ' hi' : ' dim';
     return '<div class="bar fin-bar ' + cls + hi + '">' +
         '<span class="bar-name">' + name + '</span>' +
         '<span class="bar-score">' + fmt(score) + '</span>' +
@@ -164,8 +196,8 @@ function resultBanner(final_, isSacko) {
     if (!final_) return '';
     var r = final_.round16;
     if (r.a === null || r.b === null) return '';
-    var winner = r.a >= r.b ? final_.teamA : final_.teamB;
-    if (isSacko) winner = r.a <= r.b ? final_.teamA : final_.teamB;
+    var winner = r.a >= r.b ? final_.teamA : final_.teamB;  // Championship: higher or equal score wins
+    if (isSacko) winner = r.a < r.b ? final_.teamA : final_.teamB;  // Sacko: lower score wins (actual loser)
     var icon = isSacko ? '&#127814;' : '&#127942;';
     var word = isSacko ? 'SACKO' : 'CHAMPION';
     return '<div class="result-banner ' + (isSacko ? 'sacko' : 'champ') + '">' +

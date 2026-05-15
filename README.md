@@ -6,9 +6,9 @@ A live fantasy rugby scoreboard for the Meaty Boys Cup league. Tracks weekly sco
 
 ## What it does
 
-- **Scoreboard** — live player scores for the current round, updated every minute on game days
-- **League Table** — win/loss standings across two conferences with live in-round scores applied
-- **Finals** — bracket view for the Championship (top 4) and Sacko (bottom 4) finals, seeded from the live league table
+- **Scoreboard** - live player scores for the current round, updated every minute on game days
+- **League Table** - win/loss standings across two conferences with live in-round scores applied
+- **Finals** - bracket view for the Championship (top 4) and Sacko (bottom 4) finals, seeded from the live league table
 - Data is pulled from [fantasyrugbydraft.com](http://www.fantasyrugbydraft.com) and the ESPN scoreboard API
 
 ---
@@ -43,7 +43,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-The defaults in `.env.example` work for local dev — no changes needed.
+The defaults in `.env.example` work for local dev - no changes needed.
 
 **3. Seed data (first run only)**
 
@@ -53,7 +53,7 @@ The app reads from JSON files in `data/`. Run the fetch script to populate them:
 python scripts/fetch.py
 ```
 
-This requires a valid `data/cookie.txt` (a session cookie from fantasyrugbydraft.com — run `get_cookie.py` first, or copy one manually from your browser).
+This requires a valid `data/cookie.txt` (a session cookie from fantasyrugbydraft.com - run `get_cookie.py` first, or copy one manually from your browser).
 
 **4. Start the app**
 
@@ -73,18 +73,18 @@ The project ships with a one-command deploy from Windows. It copies files over S
 
 - A Linux VM (tested on Ubuntu/Debian) reachable via SSH
 - Python 3.10+ on the VM
-- OpenSSH on Windows (`ssh -V` to check — installed by default on Windows 10/11)
+- OpenSSH on Windows (`ssh -V` to check - installed by default on Windows 10/11)
 
 ### Steps
 
-**1. Edit `deploy.ps1`** — set your VM's IP and SSH username at the top of the file:
+**1. Edit `deploy.ps1`** - set your VM's IP and SSH username at the top of the file:
 
 ```powershell
 $VM_IP    = "your.vm.ip.here"
 $VM_USER  = "root"   # or ubuntu, etc.
 ```
 
-**2. Create `.env.production`** — copy the example and fill in production values:
+**2. Create `.env.production`** - copy the example and fill in production values:
 
 ```bash
 cp .env.example .env.production
@@ -176,14 +176,14 @@ Seedings are taken from the live league table at the time of the round.
 **Championship bracket** (top 4)
 - Semi 1: #1 vs #4
 - Semi 2: #2 vs #3
-- Rounds 14 & 15 are the semis — aggregate score over both rounds decides who advances
-- Round 16 is the final — highest score wins the Championship
+- Rounds 14 & 15 are the semis - aggregate score over both rounds decides who advances
+- Round 16 is the final - highest score wins the Championship
 
 **Sacko bracket** (bottom 4)
 - Semi 1: #7 vs #10
 - Semi 2: #8 vs #9
 - Same two-round aggregate format, but the **loser** advances
-- Round 16 Sacko final — lowest score is crowned Sacko
+- Round 16 Sacko final - lowest score is crowned Sacko
 
 ---
 

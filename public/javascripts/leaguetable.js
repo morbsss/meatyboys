@@ -42,7 +42,7 @@ function renderTable(data) {
                 '<td>' + team.pointsFor + '</td>' +
                 '<td>' + team.pointsAgainst + '</td>' +
                 '<td>' + buildThisWeek(team) + '</td>' +
-                '<td>' + (team.toPlay !== undefined ? team.toPlay : '—') + '</td>' +
+                '<td>' + (team.toPlay !== undefined ? team.toPlay : '-') + '</td>' +
                 '<td class="trophyCell">' + trophy + '</td>' +
                 '</tr>';
         }
@@ -79,7 +79,7 @@ function renderTable(data) {
 
 function buildThisWeek(team) {
     if (typeof team.liveScore === 'undefined') {
-        return '<span class="noFixture">—</span>';
+        return '<span class="noFixture">-</span>';
     }
     var myScore  = team.liveScore.toFixed(1);
     var oppScore = (team.liveOpponentScore || 0).toFixed(1);

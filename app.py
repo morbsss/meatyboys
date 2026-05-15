@@ -32,7 +32,7 @@ USERS = [
 ]
 
 SELECTION_TIME_MS  = 92 * 1000
-FINALS_START_ROUND = 14        # rounds 14+ are finals — league table freezes
+FINALS_START_ROUND = 14        # rounds 14+ are finals - league table freezes
 
 file_lock = threading.Lock()
 
@@ -217,6 +217,7 @@ def get_finals_data():
             'round14': {'a': r14a, 'b': r14b},
             'round15': {'a': r15a, 'b': r15b},
             'aggregate': {'a': agg_a if has_data else None, 'b': agg_b if has_data else None},
+            'pfA': ta.get('pointsFor', 0), 'pfB': tb.get('pointsFor', 0),
             'hasData': has_data,
         }
 
@@ -282,7 +283,7 @@ def get_finals_data():
         'hasR16': r16 is not None,
         'live': is_live,
         'lastFetch': last_fetch,
-        'lastUpdated': f'LIVE — Round {current_round}',
+        'lastUpdated': f'LIVE - Round {current_round}',
     })
 
 
@@ -368,7 +369,7 @@ def get_live_table():
         base['live'] = False
         return jsonify(base)
 
-    # Finals rounds: freeze the league table — no live scores, no TO GO, no THIS WEEK
+    # Finals rounds: freeze the league table - no live scores, no TO GO, no THIS WEEK
     if current_round >= FINALS_START_ROUND:
         try:
             base['lastFetch'] = read_json_file(DATA_DIR / 'lastfetch.json').get('time', '')
@@ -496,7 +497,7 @@ def get_live_table():
 
     result['live']        = is_live
     result['liveRound']   = current_round
-    result['lastUpdated'] = f'LIVE — Round {current_round}'
+    result['lastUpdated'] = f'LIVE - Round {current_round}'
     return jsonify(result)
 
 

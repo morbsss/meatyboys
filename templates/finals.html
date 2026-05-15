@@ -45,7 +45,7 @@
 			/* ── CSS grid: 5 cols × 4 rows ──────────────────────────── */
 			.bgrid {
 				display: grid;
-				grid-template-columns: 1fr 32px minmax(76px, 104px) 32px 1fr;
+				grid-template-columns: 1fr 32px 1fr 32px 1fr;
 				grid-template-rows: 38px 64px 0 64px;
 				padding: 4px 14px 8px;
 				gap: 0 0;
@@ -237,7 +237,7 @@
 				}
 				.bottom-nav a + a { border-left: 1px solid #444; }
 				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
-				/* live indicator — flow inline, right-aligned, smaller on mobile */
+				/* live indicator - flow inline, right-aligned, smaller on mobile */
 				.liveCatTop {
 					position: static;
 					justify-content: flex-end;
@@ -258,7 +258,7 @@
 					grid-template-rows: 52px 64px 0 64px;
 					padding: 2px 6px 6px;
 				}
-				/* central trophy/sacko emoji — breathing room above + below */
+				/* central trophy/sacko emoji - breathing room above + below */
 				.lbl { padding-bottom: 4px; }
 				.final-lbl { font-size: 9px; line-height: 1.2; letter-spacing: 0.6px; }
 				.final-emoji {
@@ -267,7 +267,7 @@
 					line-height: 1;
 					margin: 2px 0 4px;
 				}
-				/* team bars — stack score under name, allow names to wrap */
+				/* team bars - stack score under name, allow names to wrap */
 				.bar {
 					height: 58px;
 					padding: 4px 5px;
@@ -289,7 +289,19 @@
 					flex-basis: 100%;
 					text-align: center;
 				}
-				.bdown-scores { display: none; }
+				/* breakdown - stack R14/R15/AGG under team name on mobile */
+				.bdown-row {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 2px;
+					padding: 6px 0;
+				}
+				.bdown-name { font-size: 12px; }
+				.bdown-scores {
+					display: block;
+					font-size: 10px;
+					white-space: normal;
+				}
 			}
 		</style>
 	</head>

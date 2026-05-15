@@ -1,4 +1,4 @@
-# Cron jobs for Meaty Boys Cup — update paths to match your server's Python installation
+# Cron jobs for Meaty Boys Cup - update paths to match your server's Python installation
 # Format: minute hour day month weekday command
 # Weekdays: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
 
