@@ -77,7 +77,28 @@ nohup .venv/bin/gunicorn \
     app:app \
     >> "$APP_DIR/gunicorn.log" 2>&1 &
 
+# ── nginx reverse proxy on port 80 ────────────────────────────────────────────
+echo "[setup] Configuring nginx reverse proxy (port 80 → gunicorn ${APP_PORT})..."
+if ! command -v nginx >/dev/null 2>&1; then
+    echo "[setup] Installing nginx..."
+    apt-get update -qq
+    apt-get install -y nginx
+fi
+
+# Substitute the gunicorn port into the site config and install it
+sed "s/__APP_PORT__/${APP_PORT}/g" "$APP_DIR/nginx/meatyboys.conf" \
+    > /etc/nginx/sites-available/meatyboys
+ln -sf /etc/nginx/sites-available/meatyboys /etc/nginx/sites-enabled/meatyboys
+rm -f /etc/nginx/sites-enabled/default
+
+nginx -t                                            # fail fast on bad config
+systemctl enable nginx >/dev/null 2>&1 || true
+systemctl reload nginx 2>/dev/null || systemctl start nginx
+echo "[setup] nginx reloaded — serving meatyboys.com on port 80."
+
 echo ""
-echo "✓ App started — http://$(hostname -I | awk '{print $1}'):${APP_PORT}"
-echo "  Logs:  tail -f $APP_DIR/gunicorn.log"
-echo "  Crons: crontab -l"
+echo "✓ App started — http://$(hostname -I | awk '{print $1}'):${APP_PORT} (internal)"
+echo "  Public:   http://meatyboys.com  (once DNS resolves)"
+echo "  Logs:     tail -f $APP_DIR/gunicorn.log"
+echo "  nginx:    tail -f /var/log/nginx/meatyboys.access.log"
+echo "  Crons:    crontab -l"
