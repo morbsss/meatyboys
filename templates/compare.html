@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Meaty Boys Cup &mdash; Compare Players</title>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+		<meta name="description" content="Meaty Boys Cup">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="/javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<script src="/javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+		<script src="/javascripts/compare.js?v=1"></script>
+		<style>
+			.bodyStyle  { padding-top: 68px; }
+			.leftBorder { border-left: 2px solid #9d9d9d; }
+			.loader     { display: block; margin: 50px auto; height: 80px; }
+			.heading    { text-align: center; font-size: 200%; font-weight: bold; margin-bottom: 18px; }
+			.back-link  { margin-bottom: 14px; font-size: 13px; }
+			.back-link a { color: #1a8fc4; }
+
+			/* ── section titles ─────────────────────────────────── */
+			.sec-title {
+				font-size: 13px;
+				font-weight: bold;
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				color: #fff;
+				background: #1a8fc4;
+				padding: 8px 14px;
+				border-radius: 4px 4px 0 0;
+				margin: 0;
+			}
+			.sec-wrap {
+				border: 1px solid #ddd;
+				border-top: none;
+				border-radius: 0 0 4px 4px;
+				margin-bottom: 18px;
+				background: #fff;
+			}
+
+			/* ── search box ─────────────────────────────────────── */
+			.search-bar {
+				padding: 10px 12px;
+				border-bottom: 1px solid #eee;
+			}
+			.search-bar input {
+				width: 100%;
+				padding: 7px 10px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				font-size: 13px;
+			}
+			.search-bar input:focus { outline: none; border-color: #1a8fc4; }
+
+			/* ── player list ────────────────────────────────────── */
+			.player-list {
+				max-height: 420px;
+				overflow-y: auto;
+			}
+			.player-item {
+				padding: 8px 12px;
+				border-bottom: 1px solid #f5f5f5;
+				cursor: pointer;
+			}
+			.player-item:hover { background: #f0f8ff; }
+			.player-item.added {
+				background: #f9f9f9;
+				cursor: default;
+				opacity: 0.5;
+			}
+			.pi-name { font-weight: bold; font-size: 13px; }
+			.pi-meta { font-size: 11px; color: #888; margin-top: 1px; }
+			.pi-more { padding: 8px 12px; font-size: 11px; color: #aaa; text-align: center; }
+			.player-list-empty { padding: 20px 12px; text-align: center; font-size: 13px; color: #aaa; }
+
+			/* ── selected chips ─────────────────────────────────── */
+			.selected-strip {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				padding: 12px 14px;
+				min-height: 54px;
+				align-items: center;
+			}
+			.no-selection { font-size: 13px; color: #aaa; }
+			.add-hint     { font-size: 12px; color: #bbb; margin-left: 4px; }
+			.sel-chip {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				border: 2px solid;
+				border-radius: 20px;
+				padding: 4px 10px 4px 8px;
+				font-size: 13px;
+				font-weight: bold;
+				background: #fff;
+				white-space: nowrap;
+			}
+			.chip-dot {
+				display: inline-block;
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				flex-shrink: 0;
+			}
+			.chip-remove {
+				background: none;
+				border: none;
+				padding: 0 0 0 4px;
+				font-size: 16px;
+				line-height: 1;
+				cursor: pointer;
+				color: inherit;
+				opacity: 0.6;
+			}
+			.chip-remove:hover { opacity: 1; }
+
+			/* ── chart ──────────────────────────────────────────── */
+			.chart-wrap { padding: 14px; }
+			.chart-empty {
+				padding: 40px;
+				text-align: center;
+				color: #bbb;
+				font-size: 14px;
+			}
+
+			/* ── stats table ────────────────────────────────────── */
+			.compare-table { margin: 0; font-size: 13px; }
+			.compare-table thead th {
+				background: #f0f0f0;
+				color: #444;
+				padding: 8px 10px;
+				border-bottom: 2px solid #ddd;
+				white-space: nowrap;
+				font-weight: bold;
+			}
+			.compare-table thead th.player-col { color: #1a4a7a; }
+			.compare-table tbody td {
+				padding: 7px 10px;
+				border-top: 1px solid #f0f0f0;
+				white-space: nowrap;
+			}
+			.compare-table tbody td.stat-label-col { font-weight: bold; color: #555; background: #fafafa; }
+			.td-best { color: #1a7a3c; font-weight: bold; }
+			.td-na   { color: #ccc; }
+
+			/* ── mobile ─────────────────────────────────────────── */
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom { display: none; }
+				.bodyStyle { padding-top: 8px !important; }
+				body { padding-bottom: 56px; }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 11px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.4px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+				.player-list { max-height: 260px; }
+			}
+		</style>
+	</head>
+	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left">
+						<li><a href="/">Scoreboard</a></li>
+						<li><a href="/leaguetable" class="leftBorder">League Table</a></li>
+						<li><a href="/finals" class="leftBorder">Finals</a></li>
+						<li class="active"><a href="/analysis" class="leftBorder">Analysis</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container-fluid bodyStyle">
+			<div class="back-link"><a href="/analysis">&larr; Back to Analysis</a></div>
+			<div class="heading">Compare Players</div>
+
+			<img class="loader" id="loader" src="/images/animal.gif">
+
+			<div id="content" style="display:none;">
+				<div class="row">
+
+					<!-- Left: search + player list -->
+					<div class="col-md-4">
+						<div class="sec-title">Search Players</div>
+						<div class="sec-wrap">
+							<div class="search-bar">
+								<input type="text" id="playerSearch" placeholder="Type a player name...">
+							</div>
+							<div id="playerList" class="player-list">
+								<div class="player-list-empty">Loading...</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Right: selected + chart + stats -->
+					<div class="col-md-8">
+
+						<!-- Selected chips -->
+						<div class="sec-title">Selected <span id="selCount" style="font-weight:normal;font-size:11px;letter-spacing:0;">(0 / 4)</span></div>
+						<div class="sec-wrap">
+							<div class="selected-strip" id="selectedStrip">
+								<span class="no-selection">Select up to 4 players from the list on the left</span>
+							</div>
+						</div>
+
+						<!-- Chart -->
+						<div class="sec-title">Round-by-Round Scores &mdash; <span id="chartSeasonLabel">select players to begin</span></div>
+						<div class="sec-wrap">
+							<div class="chart-wrap">
+								<div class="chart-toggle-bar" id="chartToggleBar" style="display:none; margin-bottom:10px;">
+									<div class="btn-group btn-group-sm" role="group">
+										<button type="button" class="btn btn-default active" id="toggleRound">Per Round</button>
+										<button type="button" class="btn btn-default" id="toggleCumulative">Cumulative</button>
+									</div>
+								</div>
+								<div class="chart-empty" id="chartEmpty">Add players to see their scores</div>
+								<canvas id="compareChart" style="display:none;"></canvas>
+							</div>
+						</div>
+
+						<!-- Stats table -->
+						<div id="statsSection" style="display:none;">
+							<div class="sec-title">Stats Comparison</div>
+							<div class="sec-wrap">
+								<div style="overflow-x:auto;">
+									<table class="table compare-table">
+										<thead id="statsHead"></thead>
+										<tbody id="statsBody"></tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="bottom-nav">
+			<a href="/">Scores</a>
+			<a href="/leaguetable">Table</a>
+			<a href="/finals">Finals</a>
+			<a href="/analysis" class="active">Analysis</a>
+		</div>
+	</body>
+</html>
