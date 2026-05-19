@@ -22,7 +22,14 @@ jobs:
           $sshDir = "$env:USERPROFILE\.ssh"
           New-Item -ItemType Directory -Force -Path $sshDir | Out-Null
           $env:SSH_PRIVATE_KEY | Out-File -Encoding ascii "$sshDir\id_ed25519"
-          icacls "$sshDir\id_ed25519" /inheritance:r /grant:r "$env:USERNAME:F" | Out-Null
+          $acl = Get-Acl "$sshDir\id_ed25519"
+          $acl.SetAccessRuleProtection($true, $false)
+          $rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+            [System.Security.Principal.WindowsIdentity]::GetCurrent().Name,
+            "FullControl", "Allow"
+          )
+          $acl.AddAccessRule($rule)
+          Set-Acl "$sshDir\id_ed25519" $acl
 
           # SSH config: skip host key checking and suppress KEX warnings for the VM
           "Host 149.28.178.14`n    StrictHostKeyChecking no`n    UserKnownHostsFile NUL" | Out-File -Encoding ascii "$sshDir\config"
