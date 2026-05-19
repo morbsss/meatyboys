@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Meaty Boys Cup &mdash; Player</title>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+		<meta name="description" content="Meaty Boys Cup">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="/javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<script src="/javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+		<script src="/javascripts/player.js?v=1"></script>
+		<style>
+			.bodyStyle  { padding-top: 68px; }
+			.leftBorder { border-left: 2px solid #9d9d9d; }
+			.loader     { display: block; margin: 50px auto; height: 80px; }
+			.heading    { text-align: center; font-size: 200%; font-weight: bold; margin-bottom: 4px; }
+			.subheading { text-align: center; font-size: 14px; color: #888; margin-bottom: 20px; }
+
+			/* ── section titles ─────────────────────────────── */
+			.sec-title {
+				font-size: 13px;
+				font-weight: bold;
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				color: #fff;
+				background: #1a8fc4;
+				padding: 8px 14px;
+				border-radius: 4px 4px 0 0;
+				margin: 0;
+			}
+			.sec-wrap {
+				border: 1px solid #ddd;
+				border-top: none;
+				border-radius: 0 0 4px 4px;
+				margin-bottom: 24px;
+				background: #fff;
+			}
+
+			/* ── stat cards ──────────────────────────────────── */
+			.stat-cards {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 12px;
+				padding: 14px;
+			}
+			.stat-card {
+				flex: 1 1 110px;
+				border: 1px solid #e0e0e0;
+				border-radius: 6px;
+				padding: 12px 14px;
+				text-align: center;
+				background: #fafafa;
+			}
+			.stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+			.stat-value { font-size: 28px; font-weight: bold; color: #1a4a7a; margin-top: 2px; }
+			.stat-value.na { color: #ccc; font-size: 20px; }
+
+			/* ── chart ───────────────────────────────────────── */
+			.chart-wrap { padding: 14px; }
+
+			/* ── tables ──────────────────────────────────────── */
+			.pred-table  { margin: 0; font-size: 13px; }
+			.score-table { margin: 0; font-size: 13px; }
+			.pred-table thead th,
+			.score-table thead th {
+				background: #f0f0f0;
+				color: #444;
+				white-space: nowrap;
+				padding: 7px 10px;
+				border-bottom: 2px solid #ddd;
+			}
+			.pred-table tbody td,
+			.score-table tbody td {
+				padding: 6px 10px;
+				border-top: 1px solid #f0f0f0;
+				white-space: nowrap;
+			}
+			.pred-table tbody tr:hover td,
+			.score-table tbody tr:hover td { background: #f5f9ff; }
+			.td-gbm  { font-weight: bold; color: #1a4a7a; }
+			.td-na   { color: #ccc; }
+			.delta-pos { color: #1a7a3c; }
+			.delta-neg { color: #c0392b; }
+
+			/* ── info icons ─────────────────────────────────── */
+			.info-icon {
+				display: inline-block;
+				font-size: 11px;
+				color: #aaa;
+				cursor: help;
+				margin-left: 3px;
+				font-style: normal;
+				font-weight: normal;
+				vertical-align: middle;
+			}
+			.info-icon:hover { color: #1a8fc4; }
+
+			/* ── back link ───────────────────────────────────── */
+			.back-link { margin-bottom: 14px; font-size: 13px; }
+			.back-link a { color: #1a8fc4; }
+
+			/* ── mobile ──────────────────────────────────────── */
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom { display: none; }
+				.bodyStyle { padding-top: 8px !important; }
+				body { padding-bottom: 56px; }
+				.stat-value { font-size: 22px; }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 11px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.4px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+			}
+		</style>
+	</head>
+	<body data-playerid="{{ playerid }}">
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left">
+						<li><a href="/">Scoreboard</a></li>
+						<li><a href="/leaguetable" class="leftBorder">League Table</a></li>
+						<li><a href="/finals" class="leftBorder">Finals</a></li>
+						<li class="active"><a href="/analysis" class="leftBorder">Analysis</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container-fluid bodyStyle">
+			<div class="back-link"><a href="/analysis">&larr; Back to Analysis</a></div>
+
+			<img class="loader" id="loader" src="/images/animal.gif">
+
+			<div id="content" style="display:none;">
+				<div class="heading" id="playerName">—</div>
+				<div class="subheading" id="playerMeta">—</div>
+
+				<!-- Stat Cards -->
+				<div class="sec-title">Season Stats</div>
+				<div class="sec-wrap">
+					<div class="stat-cards" id="statCards"></div>
+				</div>
+
+				<!-- Round-by-Round Chart -->
+				<div class="sec-title">Round-by-Round Scores</div>
+				<div class="sec-wrap">
+					<div class="chart-wrap">
+						<canvas id="roundChart" height="100"></canvas>
+					</div>
+				</div>
+
+				<!-- Score History Table -->
+				<div class="sec-title">Score History</div>
+				<div class="sec-wrap">
+					<div style="overflow-x:auto;">
+						<table class="table score-table" id="scoreTable">
+							<thead>
+								<tr>
+									<th>Season</th>
+									<th>Round</th>
+									<th>Team</th>
+									<th>vs</th>
+									<th>Score</th>
+								</tr>
+							</thead>
+							<tbody id="scoreBody"></tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Predictions -->
+				<div class="sec-title">This Round's Predictions</div>
+				<div class="sec-wrap" id="predSection">
+					<div style="overflow-x:auto;">
+						<table class="table pred-table" id="predTable">
+							<thead>
+								<tr>
+									<th>GBM <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gradient Boosted Model — machine learning prediction trained on historical scores, rolling averages, and opposition difficulty.">ⓘ</i></th>
+									<th>3G Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across the last 3 games played.">ⓘ</i></th>
+									<th>Ssn Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across all games played this season.">ⓘ</i></th>
+									<th>&gamma; p30 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gamma distribution 30th percentile — the pessimistic end of the predicted range.">ⓘ</i></th>
+									<th>&gamma; p50 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gamma distribution median — the score equally likely to be exceeded or fallen short of.">ⓘ</i></th>
+									<th>&gamma; p70 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gamma distribution 70th percentile — the optimistic end of the predicted range.">ⓘ</i></th>
+									<th>W p30 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Weibull distribution 30th percentile. Weibull handles skewed distributions well — good for players with irregular big scores.">ⓘ</i></th>
+									<th>W p50 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Weibull distribution median.">ⓘ</i></th>
+									<th>W p70 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Weibull distribution 70th percentile.">ⓘ</i></th>
+								</tr>
+							</thead>
+							<tbody id="predBody"></tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Opposition Delta -->
+				<div class="sec-title">Opposition Position Delta</div>
+				<div class="sec-wrap" id="deltaSection">
+					<div style="overflow-x:auto;">
+						<table class="table pred-table" id="deltaTable">
+							<thead>
+								<tr>
+									<th>Opposition</th>
+									<th>Position</th>
+									<th>Delta vs League Avg</th>
+								</tr>
+							</thead>
+							<tbody id="deltaBody"></tbody>
+						</table>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="bottom-nav">
+			<a href="/">Scores</a>
+			<a href="/leaguetable">Table</a>
+			<a href="/finals">Finals</a>
+			<a href="/analysis" class="active">Analysis</a>
+		</div>
+	</body>
+</html>

@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import re
+import sqlite3
 import threading
 import time as time_module
 from collections import defaultdict
@@ -16,6 +17,7 @@ app.secret_key = config.SECRET_KEY
 
 DATA_DIR        = config.DATA_DIR
 PLAYERFILES_DIR = config.PLAYERFILES_DIR
+ANALYTICS_DB    = DATA_DIR / 'analytics.db'
 
 USERS = [
     {'usr': 'funwolves',        'code': 'swerob'},
@@ -618,6 +620,151 @@ def start_timer(to_change):
             pass
 
     return 'success'
+
+
+# ── analytics helpers ─────────────────────────────────────────────────────────
+
+def _analytics_query(sql, params=()):
+    """Run a read-only query against the analytics DB. Returns list of dicts."""
+    if not ANALYTICS_DB.exists():
+        return []
+    try:
+        con = sqlite3.connect(f'file:{ANALYTICS_DB}?mode=ro', uri=True)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(sql, params).fetchall()
+        con.close()
+        return [dict(r) for r in rows]
+    except Exception:
+        return []
+
+
+# ── analytics routes ───────────────────────────────────────────────────────────
+
+@app.route('/analysis')
+def analysis():
+    return render_template('analysis.html')
+
+
+@app.route('/getPredictions')
+def get_predictions():
+    rows = _analytics_query('''
+        SELECT playerid, playername, team, position, owner, opposition, news,
+               round_num, season_year,
+               ROUND(gbm_pred, 1)            AS gbm_pred,
+               ROUND(baseline_3g_avg, 1)     AS baseline_3g_avg,
+               ROUND(baseline_season_avg, 1) AS baseline_season_avg,
+               ROUND(simple_5g_pred, 1)      AS simple_5g_pred,
+               ROUND(gamma_p50, 1)           AS gamma_p50,
+               ROUND(weibull_p50, 1)         AS weibull_p50,
+               actual_score
+        FROM all_predictions
+        WHERE season_year = (SELECT MAX(season_year) FROM all_predictions)
+          AND round_num   = (SELECT MAX(round_num) FROM all_predictions
+                             WHERE season_year = (SELECT MAX(season_year) FROM all_predictions))
+        ORDER BY gbm_pred DESC
+    ''')
+    round_num    = rows[0]['round_num']    if rows else None
+    season_year  = rows[0]['season_year']  if rows else None
+    return jsonify({'round_num': round_num, 'season_year': season_year, 'players': rows})
+
+
+@app.route('/analysis/player/<playerid>')
+def analysis_player(playerid):
+    return render_template('player.html', playerid=playerid)
+
+
+@app.route('/analysis/compare')
+def analysis_compare():
+    return render_template('compare.html')
+
+
+@app.route('/getPlayerList')
+def get_player_list():
+    rows = _analytics_query('''
+        SELECT playerid, playername, team, position, owner,
+               ROUND(total_mean, 1) AS season_avg,
+               total_count          AS games
+        FROM player_summary
+        WHERE season_year = (SELECT MAX(season_year) FROM player_summary)
+        ORDER BY total_mean DESC
+    ''')
+    return jsonify({'players': rows})
+
+
+@app.route('/getPlayerData/<playerid>')
+def get_player_data(playerid):
+    scores = _analytics_query('''
+        SELECT ds.season_year, ds.round_num,
+               ROUND(ds.total, 1) AS total, ds.mins,
+               ds.team, ds.opposition, ds.position, ds.playername
+        FROM detailed_scores ds
+        JOIN player_id_map m
+            ON ds.playerid = m.source_playerid
+            AND ds.season_year = m.source_season_year
+        WHERE m.canonical_playerid = ?
+          AND ds.total IS NOT NULL
+          AND ds.mins >= 1
+        ORDER BY ds.season_year, ds.round_num
+    ''', (playerid,))
+
+    preds = _analytics_query('''
+        SELECT playerid, playername, team, position, owner, opposition, news,
+               round_num, season_year,
+               ROUND(baseline_season_avg, 1) AS baseline_season_avg,
+               ROUND(baseline_3g_avg, 1)     AS baseline_3g_avg,
+               ROUND(baseline_5g_avg, 1)     AS baseline_5g_avg,
+               ROUND(simple_season_pred, 1)  AS simple_season_pred,
+               ROUND(simple_3g_pred, 1)      AS simple_3g_pred,
+               ROUND(simple_5g_pred, 1)      AS simple_5g_pred,
+               ROUND(gamma_p30, 1)           AS gamma_p30,
+               ROUND(gamma_p50, 1)           AS gamma_p50,
+               ROUND(gamma_p70, 1)           AS gamma_p70,
+               ROUND(weibull_p30, 1)         AS weibull_p30,
+               ROUND(weibull_p50, 1)         AS weibull_p50,
+               ROUND(weibull_p70, 1)         AS weibull_p70,
+               ROUND(gbm_pred, 1)            AS gbm_pred,
+               actual_score
+        FROM all_predictions
+        WHERE playerid = ?
+          AND season_year = (SELECT MAX(season_year) FROM all_predictions)
+          AND round_num   = (SELECT MAX(round_num) FROM all_predictions
+                             WHERE season_year = (SELECT MAX(season_year) FROM all_predictions))
+    ''', (playerid,))
+
+    pred = preds[0] if preds else None
+
+    opp_delta = None
+    if pred and pred.get('opposition') and pred.get('position'):
+        rows = _analytics_query(
+            'SELECT ROUND(delta, 2) AS delta FROM opp_position_deltas WHERE opposition = ? AND position = ?',
+            (pred['opposition'], pred['position'])
+        )
+        opp_delta = rows[0]['delta'] if rows else None
+
+    summary = _analytics_query(
+        'SELECT * FROM player_summary WHERE playerid = ?', (playerid,)
+    )
+
+    return jsonify({
+        'scores':      scores,
+        'prediction':  pred,
+        'opp_delta':   opp_delta,
+        'summary':     summary[0] if summary else None,
+    })
+
+
+@app.route('/getWinPredictions')
+def get_win_predictions():
+    rows = _analytics_query('''
+        SELECT team_a, team_b, team_a_win_prob, team_b_win_prob, draw_prob, round_num
+        FROM win_predictions
+        WHERE season = (SELECT MAX(season) FROM win_predictions)
+          AND round_num = (SELECT MAX(round_num) FROM win_predictions
+                           WHERE season = (SELECT MAX(season) FROM win_predictions))
+        ORDER BY team_a
+    ''')
+    round_num = rows[0]['round_num'] if rows else None
+    return jsonify({'round_num': round_num, 'matchups': rows})
 
 
 # ── error handlers ────────────────────────────────────────────────────────────

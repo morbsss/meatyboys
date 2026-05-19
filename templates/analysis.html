@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Meaty Boys Cup &mdash; Analysis</title>
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+		<link rel="icon" href="favicon.ico" type="image/x-icon">
+		<meta name="description" content="Meaty Boys Cup">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
+		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+		<script src="javascripts/analysis.js?v=5"></script>
+		<style>
+			.bodyStyle  { padding-top: 68px; }
+			.leftBorder { border-left: 2px solid #9d9d9d; }
+			.loader     { display: block; margin: 50px auto; height: 80px; }
+			.heading    { text-align: center; font-size: 200%; font-weight: bold; margin-bottom: 18px; }
+
+			/* ── section titles ─────────────────────────────────────── */
+			.sec-title {
+				font-size: 13px;
+				font-weight: bold;
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				color: #fff;
+				background: #1a8fc4;
+				padding: 8px 14px;
+				border-radius: 4px 4px 0 0;
+				margin: 0;
+			}
+			.sec-wrap {
+				border: 1px solid #ddd;
+				border-top: none;
+				border-radius: 0 0 4px 4px;
+				margin-bottom: 24px;
+			}
+
+			/* ── win prediction cards ───────────────────────────────── */
+			.matchup-grid {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				padding: 12px;
+				background: #fff;
+			}
+			.matchup-card {
+				flex: 1 1 280px;
+				border: 1px solid #e0e0e0;
+				border-radius: 6px;
+				padding: 12px 14px;
+				background: #fafafa;
+			}
+			.matchup-teams {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 8px;
+			}
+			.m-team { font-weight: bold; font-size: 14px; flex: 1; }
+			.m-team.right { text-align: right; }
+			.m-vs { color: #aaa; font-size: 12px; margin: 0 8px; }
+			.m-prob { font-size: 18px; font-weight: bold; }
+			.m-prob.fav  { color: #1a7a3c; }
+			.m-prob.dog  { color: #888; }
+			.m-prob.even { color: #e67e22; }
+			.prob-bar {
+				height: 8px;
+				border-radius: 4px;
+				background: #e0e0e0;
+				overflow: hidden;
+				margin-top: 4px;
+			}
+			.prob-bar-fill { height: 100%; background: #1a8fc4; border-radius: 4px; }
+			.m-draw { font-size: 10px; color: #aaa; text-align: center; margin-top: 4px; }
+
+			/* ── filters ────────────────────────────────────────────── */
+			.filter-bar {
+				padding: 10px 12px;
+				background: #f7f7f7;
+				border-bottom: 1px solid #e5e5e5;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				align-items: center;
+			}
+			.filter-bar select {
+				padding: 4px 8px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				font-size: 13px;
+				background: #fff;
+			}
+			.filter-bar label {
+				font-size: 13px;
+				font-weight: normal;
+				margin: 0;
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				cursor: pointer;
+			}
+			.owner-multi { position: relative; }
+			.owner-btn {
+				padding: 4px 10px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				background: #fff;
+				font-size: 13px;
+				cursor: pointer;
+				white-space: nowrap;
+			}
+			.owner-panel {
+				position: absolute;
+				top: 100%;
+				left: 0;
+				z-index: 2000;
+				background: #fff;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				padding: 6px 0;
+				min-width: 180px;
+				box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+			}
+			.owner-panel label {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				padding: 5px 14px;
+				font-weight: normal;
+				margin: 0;
+				cursor: pointer;
+				white-space: nowrap;
+				font-size: 13px;
+			}
+			.owner-panel label:hover { background: #f5f5f5; }
+			.panel-clear-row {
+				padding: 4px 14px 6px;
+				border-bottom: 1px solid #eee;
+				margin-bottom: 2px;
+			}
+			.panel-clear-row a {
+				font-size: 12px;
+				color: #999;
+				text-decoration: none;
+			}
+			.panel-clear-row a:hover { color: #c0392b; text-decoration: underline; }
+
+			/* ── info icons ─────────────────────────────────────────────── */
+			.info-icon {
+				display: inline-block;
+				font-size: 11px;
+				color: #aaa;
+				cursor: help;
+				margin-left: 3px;
+				font-style: normal;
+				font-weight: normal;
+				vertical-align: middle;
+			}
+			.info-icon:hover { color: #1a8fc4; }
+			#playerCount {
+				margin-left: auto;
+				font-size: 12px;
+				color: #888;
+			}
+
+			/* ── predictions table ──────────────────────────────────── */
+			.table-scroll { overflow-x: auto; background: #fff; }
+			#predTable { margin: 0; font-size: 13px; }
+			#predTable thead th {
+				background: #f0f0f0;
+				color: #444;
+				white-space: nowrap;
+				padding: 8px 10px;
+				border-bottom: 2px solid #ddd;
+				cursor: pointer;
+				user-select: none;
+			}
+			#predTable thead th:hover { background: #e5e5e5; }
+			#predTable thead th.sort-asc::after  { content: ' ▲'; font-size: 9px; color: #1a8fc4; }
+			#predTable thead th.sort-desc::after { content: ' ▼'; font-size: 9px; color: #1a8fc4; }
+			#predTable tbody td {
+				padding: 6px 10px;
+				border-top: 1px solid #f0f0f0;
+				white-space: nowrap;
+			}
+			#predTable tbody tr:hover td { background: #f5f9ff; }
+			.td-gbm { font-weight: bold; color: #1a4a7a; }
+			.td-starting { color: #1a7a3c; font-size: 11px; }
+			.td-bench    { color: #aaa;    font-size: 11px; }
+			.td-na { color: #ccc; }
+			.td-name { font-weight: bold; }
+
+			/* ── mobile ─────────────────────────────────────────────── */
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom { display: none; }
+				.bodyStyle { padding-top: 8px !important; }
+				body { padding-bottom: 56px; }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 11px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.4px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+			}
+		</style>
+	</head>
+	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left">
+						<li><a href="/">Scoreboard</a></li>
+						<li><a href="/leaguetable" class="leftBorder">League Table</a></li>
+						<li><a href="/finals" class="leftBorder">Finals</a></li>
+						<li class="active"><a href="/analysis" class="leftBorder">Analysis</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container-fluid bodyStyle">
+			<div class="heading">Analysis &mdash; Round <span id="roundNum">...</span></div>
+			<div style="text-align:center; margin-bottom: 16px;">
+				<a href="/analysis/compare" class="btn btn-default btn-sm">
+					<i class="fa fa-bar-chart"></i> Compare Players
+				</a>
+			</div>
+			<img class="loader" id="loader" src="images/animal.gif">
+
+			<div id="content" style="display:none;">
+
+				<!-- Win Predictions -->
+				<div id="winSection">
+					<div class="sec-title">This Round's Matchups</div>
+					<div class="sec-wrap">
+						<div class="matchup-grid" id="matchupGrid"></div>
+					</div>
+				</div>
+
+				<!-- Player Predictions -->
+				<div class="sec-title">Player Predictions</div>
+				<div class="sec-wrap">
+					<div class="filter-bar">
+						<select id="posFilter">
+							<option value="">All Positions</option>
+						</select>
+						<div class="owner-multi" id="ownerDropdown">
+							<button type="button" class="owner-btn" id="ownerBtn">
+								<span id="ownerLabel">All Managers</span> &#9660;
+							</button>
+							<div class="owner-panel" id="ownerPanel" style="display:none;">
+							</div>
+						</div>
+						<div class="owner-multi" id="newsDropdown">
+							<button type="button" class="owner-btn" id="newsBtn">
+								<span id="newsLabel">All News</span> &#9660;
+							</button>
+							<div class="owner-panel" id="newsPanel" style="display:none;">
+								<div class="panel-clear-row"><a href="#" id="newsClear">Clear</a></div>
+								<label><input type="checkbox" class="news-cb" value="Starting"> Starting</label>
+								<label><input type="checkbox" class="news-cb" value="Starting (c)"> Starting (c)</label>
+								<label><input type="checkbox" class="news-cb" value="Bench"> Bench</label>
+							</div>
+						</div>
+						<span id="playerCount"></span>
+					</div>
+					<div class="table-scroll">
+						<table class="table" id="predTable">
+							<thead>
+								<tr>
+									<th data-col="playername">Player</th>
+									<th data-col="position">Pos</th>
+									<th data-col="team">Team</th>
+									<th data-col="opposition">vs</th>
+									<th data-col="owner">Owner</th>
+									<th data-col="news">News</th>
+									<th data-col="gbm_pred">GBM <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gradient Boosted Model — machine learning prediction trained on historical scores, rolling averages, and opposition difficulty. Usually the most accurate single predictor.">ⓘ</i></th>
+									<th data-col="baseline_3g_avg">3G Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across the player's last 3 games. Reflects recent form.">ⓘ</i></th>
+									<th data-col="baseline_season_avg">Ssn Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across all games played this season. Reflects overall season quality.">ⓘ</i></th>
+									<th data-col="gamma_p50">&gamma; p50 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gamma distribution median (50th percentile). A probability model fitted to the player's score history — the score they are equally likely to exceed or fall short of.">ⓘ</i></th>
+									<th data-col="weibull_p50">W p50 <i class="info-icon" data-toggle="tooltip" data-container="body" title="Weibull distribution median (50th percentile). An alternative probability model that handles skewed score distributions — useful for players with irregular high-scoring games.">ⓘ</i></th>
+								</tr>
+							</thead>
+							<tbody id="predBody"></tbody>
+						</table>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="bottom-nav">
+			<a href="/">Scores</a>
+			<a href="/leaguetable">Table</a>
+			<a href="/finals">Finals</a>
+			<a href="/analysis" class="active">Analysis</a>
+		</div>
+	</body>
+</html>
