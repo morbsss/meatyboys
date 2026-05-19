@@ -5,8 +5,11 @@ import requests
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 DATA_DIR = os.path.join(ROOT, 'data')
 
+login = os.environ["FANTASY_RUGBY_EMAIL"]
+password = os.environ["FANTASY_RUGBY_PASSWORD"]
+
 payload = {
-    'Data': '{"tblogin":"jdunlop467@gmail.com","tbpassword":"legend12","rememberme":"on",'
+    'Data': f'{{"tblogin":"{login}","tbpassword":"{password}","rememberme":"on",'
             '"leagueid":"","code":"","timezoneoffset":-660,"action":"user/login","type":"action"}'
 }
 

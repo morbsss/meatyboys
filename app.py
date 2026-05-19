@@ -163,7 +163,24 @@ def get_league_table():
 
 @app.route('/getFinalsData')
 def get_finals_data():
-    all_teams = _live_ranked_teams()
+    try:
+        current_round = read_json_file(DATA_DIR / 'round.json').get('round', 13)
+    except Exception:
+        current_round = 13
+    
+    # For rounds 14-16 (finals), use base league table without live scores
+    if current_round in [14, 15, 16]:
+        try:
+            base = read_json_file(DATA_DIR / 'leaguetable.json')
+            all_teams_flat = [t for conf in base['conferences'] for t in conf['teams']]
+            all_teams_flat.sort(key=lambda t: (-t['won'], -t['pointsFor']))
+            for i, t in enumerate(all_teams_flat):
+                t['rank'] = i + 1
+            all_teams = all_teams_flat
+        except Exception:
+            all_teams = _live_ranked_teams()
+    else:
+        all_teams = _live_ranked_teams()
 
     def round_team_scores(rnd):
         try:

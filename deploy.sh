@@ -58,7 +58,7 @@ PYTHON="$APP_DIR/.venv/bin/python3"
 */20 * * * 4,5,6,0,1 $PYTHON $APP_DIR/scripts/save_round.py >> $APP_DIR/cron.log 2>&1
 * * * * 5,6,0 $PYTHON $APP_DIR/scripts/save_scoreboard.py >> $APP_DIR/cron.log 2>&1
 0 */2 * * 1,2,3,4 $PYTHON $APP_DIR/scripts/save_scoreboard.py >> $APP_DIR/cron.log 2>&1
-0 17 * * * $PYTHON $APP_DIR/scripts/get_cookie.py >> $APP_DIR/cron.log 2>&1
+0 17 * * * bash -c 'set -a; source '"$APP_DIR"'/.env; set +a; '"$PYTHON"' '"$APP_DIR"'/scripts/get_cookie.py' >> $APP_DIR/cron.log 2>&1
 * * * * 5,6,0 $PYTHON $APP_DIR/scripts/save_leaguetable.py >> $APP_DIR/cron.log 2>&1
 0 */2 * * 1,2,3,4 $PYTHON $APP_DIR/scripts/save_leaguetable.py >> $APP_DIR/cron.log 2>&1
 CRON

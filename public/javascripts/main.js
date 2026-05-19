@@ -293,6 +293,9 @@ function fillData() {
 			<div class="rName">\
 			'+ team1[i].name + '\
 			</div>\
+			<div style="font-size: 80%; color: #000000; padding-top: 2px;">\
+			'+ team1[i].owner + '\
+			</div>\
 			</td>\
 			<td width="5%" style="background-color:'+ lColor + '">\
 			<div style="text-align:center;font-size:20px;">\
@@ -321,6 +324,9 @@ function fillData() {
 			<td width="24%" style="background-color:'+ rColor + '">\
 			<div class="rName">\
 			'+ team2[i].name + '\
+			</div>\
+			<div style="font-size: 80%; color: #000000; padding-top: 2px;">\
+			'+ team2[i].owner + '\
 			</div>\
 			</td>\
 			<td width="3%"  style="background-color:'+ rColor + '">\
