@@ -216,7 +216,7 @@ function breakdown(s1, s2, isSacko) {
             '<span class="bdown-name">' + name + '</span>' +
             '<span class="bdown-scores">R14: ' + fmt(r14) +
             ' &nbsp; R15: ' + fmt(r15) +
-            ' &nbsp; <strong>AGG: ' + fmt(agg) + '</strong></span>' +
+            ' &nbsp; <strong>CUM: ' + fmt(agg) + '</strong></span>' +
             '</div>';
     }
 
