@@ -21,11 +21,15 @@ jobs:
         run: |
           $sshDir = "$env:USERPROFILE\.ssh"
           New-Item -ItemType Directory -Force -Path $sshDir | Out-Null
-          $SSH_PRIVATE_KEY | Out-File -Encoding ascii "$sshDir\id_ed25519"
+          $env:SSH_PRIVATE_KEY | Out-File -Encoding ascii "$sshDir\id_ed25519"
           icacls "$sshDir\id_ed25519" /inheritance:r /grant:r "$env:USERNAME:F" | Out-Null
 
-          # Trust the VM host key so SSH doesn't prompt
-          ssh-keyscan -p 22 149.28.178.14 >> "$sshDir\known_hosts"
+          # SSH config: skip host key checking and suppress KEX warnings for the VM
+          @"
+Host 149.28.178.14
+    StrictHostKeyChecking no
+    UserKnownHostsFile NUL
+"@ | Out-File -Encoding ascii "$sshDir\config"
 
       - name: Write .env.production
         shell: pwsh
