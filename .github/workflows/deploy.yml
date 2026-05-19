@@ -4,36 +4,53 @@ on:
   pull_request:
     types: [closed]
     branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
-    runs-on: windows-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up SSH key
-        shell: pwsh
+      - name: Set up SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          $sshDir = "$env:USERPROFILE\.ssh"
-          New-Item -ItemType Directory -Force -Path $sshDir | Out-Null
-          $env:SSH_PRIVATE_KEY | Out-File -Encoding ascii "$sshDir\id_ed25519"
-          icacls "$sshDir\id_ed25519" /inheritance:r /grant:r "$env:USERNAME:F" | Out-Null
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "ERROR: SSH_PRIVATE_KEY secret is empty"; exit 1
+          fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat > ~/.ssh/config <<'EOF'
+          Host vm
+              HostName 149.28.178.14
+              User root
+              StrictHostKeyChecking no
+              UserKnownHostsFile /dev/null
+          EOF
+          chmod 600 ~/.ssh/config
 
-          # SSH config: skip host key checking and suppress KEX warnings for the VM
-          "Host 149.28.178.14`n    StrictHostKeyChecking no`n    UserKnownHostsFile NUL" | Out-File -Encoding ascii "$sshDir\config"
+      - name: Verify SSH connection
+        run: ssh -o BatchMode=yes -o ConnectTimeout=10 vm "echo connected"
 
-      - name: Write .env.production
-        shell: pwsh
+      - name: Write .env on VM
         env:
           ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
         run: |
-          $env:ENV_PRODUCTION | Out-File -Encoding ascii ".env.production"
+          if [ -z "$ENV_PRODUCTION" ]; then
+            echo "ERROR: ENV_PRODUCTION secret is empty"; exit 1
+          fi
+          printf '%s\n' "$ENV_PRODUCTION" | ssh vm "cat > ~/meatyboys/.env"
 
-      - name: Run deploy.ps1
-        shell: pwsh
-        run: .\deploy.ps1
+      - name: Pull latest code and deploy
+        run: |
+          ssh vm 'set -e; cd ~/meatyboys && git fetch origin master && git reset --hard origin/master && bash deploy.sh'
