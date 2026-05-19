@@ -25,18 +25,14 @@ jobs:
           icacls "$sshDir\id_ed25519" /inheritance:r /grant:r "$env:USERNAME:F" | Out-Null
 
           # SSH config: skip host key checking and suppress KEX warnings for the VM
-          @"
-            Host 149.28.178.14
-                StrictHostKeyChecking no
-                UserKnownHostsFile NUL
-            "@ | Out-File -Encoding ascii "$sshDir\config"
+          "Host 149.28.178.14`n    StrictHostKeyChecking no`n    UserKnownHostsFile NUL" | Out-File -Encoding ascii "$sshDir\config"
 
       - name: Write .env.production
         shell: pwsh
         env:
           ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
         run: |
-          $ENV_PRODUCTION | Out-File -Encoding ascii ".env.production"
+          $env:ENV_PRODUCTION | Out-File -Encoding ascii ".env.production"
 
       - name: Run deploy.ps1
         shell: pwsh
