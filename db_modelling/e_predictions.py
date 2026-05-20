@@ -228,7 +228,7 @@ def run(con=None):
     fixtures   = load_upcoming_fixtures(con)
     opp_deltas = load_opp_deltas(con)
 
-    round_num = get_current_round()
+    round_num = get_current_round(con)
     log.info(f'  Current round: {round_num}')
     log.info(f'  {len(scores_df):,} score rows | {len(players):,} players | '
              f'{len(fixtures):,} fixture rows')
