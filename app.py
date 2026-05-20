@@ -7,6 +7,7 @@ import threading
 import time as time_module
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 from flask import Flask, render_template, request, jsonify, Response
 
@@ -17,7 +18,7 @@ app.secret_key = config.SECRET_KEY
 
 DATA_DIR        = config.DATA_DIR
 PLAYERFILES_DIR = config.PLAYERFILES_DIR
-ANALYTICS_DB    = DATA_DIR / 'analytics.db'
+ANALYTICS_DB    = Path(os.getenv('ANALYTICS_DB_PATH', str(DATA_DIR / 'analytics.db')))
 
 USERS = [
     {'usr': 'funwolves',        'code': 'swerob'},
@@ -682,7 +683,15 @@ def get_predictions():
     ''')
     round_num    = rows[0]['round_num']    if rows else None
     season_year  = rows[0]['season_year']  if rows else None
-    return jsonify({'round_num': round_num, 'season_year': season_year, 'players': rows})
+
+    last_updated = None
+    rows = _analytics_query("SELECT value FROM metadata WHERE key = 'last_extract'")
+    if rows:
+        ts = datetime.fromisoformat(rows[0]['value'])
+        last_updated = ts.strftime('%-d %b, %H:%M')
+
+    return jsonify({'round_num': round_num, 'season_year': season_year,
+                    'last_updated': last_updated, 'players': rows})
 
 
 @app.route('/analysis/player/<playerid>')

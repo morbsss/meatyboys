@@ -15,6 +15,7 @@ $(function () {
 
         var rnd = predData.round_num || winData.round_num;
         $('#roundNum').text(rnd || '—');
+        $('#lastUpdated').text(predData.last_updated || '—');
 
         buildWinCards(winData.matchups || []);
         populateFilters(allPlayers);
