@@ -15,7 +15,13 @@ $(function () {
 
         var rnd = predData.round_num || winData.round_num;
         $('#roundNum').text(rnd || '—');
-        $('#lastUpdated').text(predData.last_updated || '—');
+        if (predData.last_updated) {
+            var d = new Date(predData.last_updated);
+            $('#lastUpdated').text(d.toLocaleString(undefined, {
+                day: 'numeric', month: 'short',
+                hour: '2-digit', minute: '2-digit'
+            }));
+        }
 
         buildWinCards(winData.matchups || []);
         populateFilters(allPlayers);

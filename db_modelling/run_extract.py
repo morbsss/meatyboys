@@ -75,7 +75,7 @@ def main():
     f_win_predictions.run(con)
     print()
 
-    completed = dt.datetime.now()
+    completed = dt.datetime.now(dt.timezone.utc)
     con = sqlite3.connect(params.DB_PATH)
     con.execute('PRAGMA journal_mode=WAL')
     con.execute("CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT)")
