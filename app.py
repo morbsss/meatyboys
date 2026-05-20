@@ -670,8 +670,10 @@ def get_predictions():
     last_updated = None
     rows = _analytics_query("SELECT value FROM metadata WHERE key = 'last_extract'")
     if rows:
-        ts = datetime.fromisoformat(rows[0]['value'])
-        last_updated = ts.strftime('%-d %b, %H:%M')
+        val = rows[0]['value']
+        if '+' not in val and not val.endswith('Z'):
+            val += 'Z'  # stored as naive UTC — make it explicit for the browser
+        last_updated = val
 
     return jsonify({'round_num': round_num, 'season_year': season_year,
                     'last_updated': last_updated, 'players': rows})
