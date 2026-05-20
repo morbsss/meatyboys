@@ -75,8 +75,16 @@ def main():
     f_win_predictions.run(con)
     print()
 
+    completed = dt.datetime.now()
+    con = sqlite3.connect(params.DB_PATH)
+    con.execute('PRAGMA journal_mode=WAL')
+    con.execute("CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT)")
+    con.execute("INSERT OR REPLACE INTO metadata (key, value) VALUES ('last_extract', ?)",
+                (completed.isoformat(),))
+    con.commit()
     con.close()
-    elapsed = (dt.datetime.now() - start).total_seconds()
+
+    elapsed = (completed - start).total_seconds()
     print(f'=== Pipeline complete in {elapsed:.0f}s ===')
 
 
