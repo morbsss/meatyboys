@@ -14,8 +14,8 @@ DB_PATH = DATA_DIR / 'analytics.db'
 FIXTURES_DIR = Path(__file__).parent / 'fixtures'
 
 FRD_URL = 'http://www.fantasyrugbydraft.com/Web/Services/Action.asmx/Request'
-FRD_EMAIL = os.getenv('FRD_EMAIL', '')
-FRD_PASSWORD = os.getenv('FRD_PASSWORD', '')
+FRD_EMAIL = os.getenv('FANTASY_RUGBY_EMAIL', '')
+FRD_PASSWORD = os.getenv('FANTASY_RUGBY_PASSWORD', '')
 FRD_LEAGUE_ID = os.getenv('FRD_LEAGUE_ID', '')
 FRD_SEASON_ID = os.getenv('FRD_SEASON_ID', '')
 

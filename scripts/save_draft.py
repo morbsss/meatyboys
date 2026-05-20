@@ -10,8 +10,8 @@ import requests
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 DATA_DIR = os.path.join(ROOT, 'data')
 
-LEAGUE_ID = 'fa3e96be-1307-4bd3-a2df-b3e40015a890'
-SEASON_ID = 'bb0f57e5-84e9-48c4-a3cb-b3cf015e1a84'
+LEAGUE_ID = os.environ["FRD_LEAGUE_ID"]
+SEASON_ID = os.environ["FRD_SEASON_ID"]
 
 with open(os.path.join(DATA_DIR, 'round.json')) as f:
     round_no = json.load(f)['round']

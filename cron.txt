@@ -2,6 +2,9 @@
 # Format: minute hour day month weekday command
 # Weekdays: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
 
+# All schedules are interpreted in Sydney wall-clock time (DST-safe)
+CRON_TZ=Australia/Sydney
+
 # Player scores every 3 min on weekends/Monday
 */3 * * * 5,6,0,1 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/get_player_scores.py >> /root/meatyboys/cron.log 2>&1
 
@@ -33,3 +36,14 @@
 # League table every 2 hrs on Mon-Thu + explicit 7am Monday refresh
 0 */2 * * 1,2,3,4 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_leaguetable.py >> /root/meatyboys/cron.log 2>&1
 0 7 * * 1 /root/meatyboys/venv/bin/python3 /root/meatyboys/scripts/save_leaguetable.py >> /root/meatyboys/cron.log 2>&1
+
+# === Analytics pipeline (db_modelling/run_extract.py) ===
+# Hourly: Wed 15:00 -> Sun 07:00 (lineups drop Wed 2:30pm; live games Fri-Mon)
+0 15-23 * * 3 cd /root/meatyboys/db_modelling && /root/meatyboys/.venv/bin/python3 run_extract.py >> /root/meatyboys/cron.log 2>&1
+0 * * * 4,5,6 cd /root/meatyboys/db_modelling && /root/meatyboys/.venv/bin/python3 run_extract.py >> /root/meatyboys/cron.log 2>&1
+0 0-7 * * 0 cd /root/meatyboys/db_modelling && /root/meatyboys/.venv/bin/python3 run_extract.py >> /root/meatyboys/cron.log 2>&1
+
+# 3-hourly: Sun 09:00 -> Wed 12:00 (quiet part of the week)
+0 9,12,15,18,21 * * 0 cd /root/meatyboys/db_modelling && /root/meatyboys/.venv/bin/python3 run_extract.py >> /root/meatyboys/cron.log 2>&1
+0 */3 * * 1,2 cd /root/meatyboys/db_modelling && /root/meatyboys/.venv/bin/python3 run_extract.py >> /root/meatyboys/cron.log 2>&1
+0 0,3,6,9,12 * * 3 cd /root/meatyboys/db_modelling && /root/meatyboys/.venv/bin/python3 run_extract.py >> /root/meatyboys/cron.log 2>&1
