@@ -79,24 +79,43 @@ def load_opp_deltas(con):
     return pd.read_sql('SELECT opposition, position, delta FROM opp_position_deltas', con)
 
 
+def _week_cutoff(game_date):
+    """Monday 07:00 AEST (= Sunday 21:00 UTC) of the week containing game_date.
+
+    Mirrors scripts/save_round.py so the analytics pipeline advances rounds at
+    exactly the same moment as the live JSON pipeline.
+    """
+    monday = game_date - dt.timedelta(days=game_date.weekday())
+    return (dt.datetime(monday.year, monday.month, monday.day, tzinfo=dt.timezone.utc)
+            - dt.timedelta(hours=3))
+
+
 def get_current_round(con=None):
     """Return the current round number.
 
-    When a DB connection is given, derives the round from fantasy_matchups
-    start dates (most recently started round as of today). Falls back to
-    date arithmetic from SEASON_START_DATES when the DB is unavailable or
-    has no matching rows.
+    Mirrors the JSON pipeline (scripts/save_round.py): a round becomes current
+    at Monday 07:00 AEST of the week containing its first game. Walks each
+    round's first match_date from ref_fixtures and returns the latest round
+    whose cutoff has passed. Falls back to date arithmetic only when the
+    fixtures table is empty or unavailable.
     """
     if con is not None:
         try:
-            today = dt.date.today().isoformat()
-            row = con.execute('''
-                SELECT round_num FROM fantasy_matchups
-                WHERE season = ? AND start_date <= ?
-                ORDER BY start_date DESC LIMIT 1
-            ''', (params.CURRENT_SEASON, today)).fetchone()
-            if row:
-                return row[0]
+            rows = con.execute('''
+                SELECT round_num, MIN(match_date) AS first_date
+                FROM ref_fixtures
+                WHERE season = ?
+                GROUP BY round_num
+                ORDER BY first_date
+            ''', (params.CURRENT_SEASON,)).fetchall()
+            if rows:
+                now = dt.datetime.now(dt.timezone.utc)
+                current = rows[-1][0]
+                for i, (_, first_date) in enumerate(rows):
+                    if _week_cutoff(dt.date.fromisoformat(first_date)) > now:
+                        current = rows[i - 1][0] if i > 0 else rows[0][0]
+                        break
+                return current
         except Exception:
             pass
     start = dt.date.fromisoformat(params.SEASON_START_DATES[params.CURRENT_SEASON])
@@ -105,7 +124,7 @@ def get_current_round(con=None):
 
 def load_upcoming_fixtures(con):
     """Return fixtures for the current round."""
-    round_num = get_current_round()
+    round_num = get_current_round(con)
     return pd.read_sql(f'''
         SELECT round_num, team, opposition, home_away, match_date
         FROM ref_fixtures

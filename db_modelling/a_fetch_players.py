@@ -8,7 +8,6 @@ Writes to:
 """
 import datetime as dt
 import json
-import math
 import sqlite3
 
 import pandas as pd
@@ -16,6 +15,7 @@ import requests
 from bs4 import BeautifulSoup as bs
 
 import params
+from e_helpers import get_current_round
 
 
 def _get_session():
@@ -29,11 +29,6 @@ def _get_session():
     }
     s.post(params.FRD_URL, json=cred)
     return s
-
-
-def _current_round(season):
-    start = dt.date.fromisoformat(params.SEASON_START_DATES[season])
-    return math.ceil((dt.date.today() - start).days / 7)
 
 
 def _table_exists(con, name):
@@ -109,7 +104,7 @@ def update_player_ref(player_df, con):
 
 
 def update_team_news(player_df, con, season):
-    round_num = _current_round(season)
+    round_num = get_current_round(con)
     table = params.TEAM_NEWS_TABLE
 
     news = player_df[['playerid', 'playername', 'news', 'owner']].copy()
