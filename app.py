@@ -649,20 +649,23 @@ def analysis():
 @app.route('/getPredictions')
 def get_predictions():
     rows = _analytics_query('''
-        SELECT playerid, playername, team, position, owner, opposition, news,
-               round_num, season_year,
-               ROUND(gbm_pred, 1)            AS gbm_pred,
-               ROUND(baseline_3g_avg, 1)     AS baseline_3g_avg,
-               ROUND(baseline_season_avg, 1) AS baseline_season_avg,
-               ROUND(simple_5g_pred, 1)      AS simple_5g_pred,
-               ROUND(gamma_p50, 1)           AS gamma_p50,
-               ROUND(weibull_p50, 1)         AS weibull_p50,
-               actual_score
-        FROM all_predictions
-        WHERE season_year = (SELECT MAX(season_year) FROM all_predictions)
-          AND round_num   = (SELECT MAX(round_num) FROM all_predictions
-                             WHERE season_year = (SELECT MAX(season_year) FROM all_predictions))
-        ORDER BY gbm_pred DESC
+        SELECT ap.playerid, ap.playername, ap.team, ap.position, ap.owner,
+               ap.opposition, ap.news,
+               ap.round_num, ap.season_year,
+               mt.role                          AS lineup_role,
+               ROUND(ap.actual_score, 1)        AS actual_score,
+               ROUND(ap.gbm_pred, 1)            AS gbm_pred,
+               ROUND(ap.baseline_3g_avg, 1)     AS baseline_3g_avg,
+               ROUND(ap.baseline_season_avg, 1) AS baseline_season_avg,
+               ROUND(ap.simple_5g_pred, 1)      AS simple_5g_pred,
+               ROUND(ap.gamma_p50, 1)           AS gamma_p50,
+               ROUND(ap.weibull_p50, 1)         AS weibull_p50
+        FROM all_predictions ap
+        LEFT JOIN manager_team mt ON ap.playerid = mt.playerid
+        WHERE ap.season_year = (SELECT MAX(season_year) FROM all_predictions)
+          AND ap.round_num   = (SELECT MAX(round_num) FROM all_predictions
+                                WHERE season_year = (SELECT MAX(season_year) FROM all_predictions))
+        ORDER BY ap.gbm_pred DESC
     ''')
     round_num    = rows[0]['round_num']    if rows else None
     season_year  = rows[0]['season_year']  if rows else None

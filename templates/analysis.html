@@ -12,7 +12,7 @@
 		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 		<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
 		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-		<script src="javascripts/analysis.js?v=9"></script>
+		<script src="javascripts/analysis.js?v=10"></script>
 		<style>
 			.bodyStyle  { padding-top: 68px; }
 			.leftBorder { border-left: 2px solid #9d9d9d; }
@@ -192,7 +192,8 @@
 				white-space: nowrap;
 			}
 			#predTable tbody tr:hover td { background: #f5f9ff; }
-			.td-gbm { font-weight: bold; color: #1a4a7a; }
+			.td-gbm    { font-weight: bold; color: #1a4a7a; }
+			.td-actual { font-weight: bold; color: #1a4a7a; }
 			.td-starting { color: #1a7a3c; font-size: 11px; }
 			.td-bench    { color: #aaa;    font-size: 11px; }
 			.td-na { color: #ccc; }
@@ -318,6 +319,8 @@
 									<th data-col="opposition">vs</th>
 									<th data-col="owner">Owner</th>
 									<th data-col="news">News</th>
+									<th data-col="lineup_role">Lineup</th>
+									<th data-col="actual_score">Score</th>
 									<th data-col="gbm_pred">GBM <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gradient Boosted Model — machine learning prediction trained on historical scores, rolling averages, and opposition difficulty. Usually the most accurate single predictor.">ⓘ</i></th>
 									<th data-col="baseline_3g_avg">3G Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across the player's last 3 games. Reflects recent form.">ⓘ</i></th>
 									<th data-col="baseline_season_avg">Ssn Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across all games played this season. Reflects overall season quality.">ⓘ</i></th>
