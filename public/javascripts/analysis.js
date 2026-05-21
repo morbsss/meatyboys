@@ -235,6 +235,11 @@ $(function () {
         return 'td-bench';
     }
 
+    function lineupClass(role) {
+        if (!role) return '';
+        return role === 'Starting' ? 'td-starting' : 'td-bench';
+    }
+
     function renderTable() {
         var players = sorted(filtered());
         var $body   = $('#predBody').empty();
@@ -245,6 +250,11 @@ $(function () {
                 ? '<a href="/analysis/player/' + p.playerid + '" class="td-name">' + (p.playername || '') + '</a>'
                 : '<span class="td-name">' + (p.playername || '') + '</span>';
 
+            var lCls    = lineupClass(p.lineup_role);
+            var scoreTd = (p.actual_score !== null && p.actual_score !== undefined)
+                ? '<td class="td-actual"><strong>' + p.actual_score + '</strong></td>'
+                : '<td>' + fmt(null) + '</td>';
+
             $body.append(
                 '<tr>' +
                 '<td class="td-name">' + nameCell + '</td>' +
@@ -253,6 +263,8 @@ $(function () {
                 '<td>' + (p.opposition || '') + '</td>' +
                 '<td>' + (p.owner || '') + '</td>' +
                 '<td class="' + nCls + '">' + (p.news || '') + '</td>' +
+                '<td class="' + lCls + '">' + (p.lineup_role || '') + '</td>' +
+                scoreTd +
                 '<td class="td-gbm">' + fmt(p.gbm_pred) + '</td>' +
                 '<td>' + fmt(p.baseline_3g_avg) + '</td>' +
                 '<td>' + fmt(p.baseline_season_avg) + '</td>' +
