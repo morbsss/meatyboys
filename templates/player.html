@@ -61,6 +61,10 @@
 
 			/* ── chart ───────────────────────────────────────── */
 			.chart-wrap { padding: 14px; }
+			#roundChart { max-height: 280px; }
+			@media (max-width: 767px) {
+				#roundChart { max-height: 220px; }
+			}
 
 			/* ── tables ──────────────────────────────────────── */
 			.pred-table  { margin: 0; font-size: 13px; }
@@ -177,7 +181,13 @@
 				<div class="sec-title">Round-by-Round Scores</div>
 				<div class="sec-wrap">
 					<div class="chart-wrap">
-						<canvas id="roundChart" height="100"></canvas>
+						<div id="chartToggleBar" style="margin-bottom:10px; display:none;">
+							<div class="btn-group btn-group-sm" role="group">
+								<button type="button" class="btn btn-default active" id="toggleCurrentSeason">This Season</button>
+								<button type="button" class="btn btn-default" id="toggleAllSeasons">All Seasons</button>
+							</div>
+						</div>
+						<canvas id="roundChart"></canvas>
 					</div>
 				</div>
 
