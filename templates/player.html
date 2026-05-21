@@ -12,7 +12,7 @@
 		<link rel="stylesheet" href="/javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 		<script src="/javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-		<script src="/javascripts/player.js?v=1"></script>
+		<script src="/javascripts/player.js?v=2"></script>
 		<style>
 			.bodyStyle  { padding-top: 68px; }
 			.leftBorder { border-left: 2px solid #9d9d9d; }
@@ -63,7 +63,7 @@
 			.chart-wrap { padding: 14px; }
 			#roundChart { max-height: 280px; }
 			@media (max-width: 767px) {
-				#roundChart { max-height: 220px; }
+				#roundChart { max-height: 440px; }
 			}
 
 			/* ── tables ──────────────────────────────────────── */
@@ -163,7 +163,11 @@
 		</nav>
 
 		<div class="container-fluid bodyStyle">
-			<div class="back-link"><a href="/analysis">&larr; Back to Analysis</a></div>
+			<div class="back-link">
+				<a href="/analysis">&larr; Back to Analysis</a>
+				&nbsp;&middot;&nbsp;
+				<a href="/analysis/players">Browse Players</a>
+			</div>
 
 			<img class="loader" id="loader" src="/images/animal.gif">
 
@@ -183,8 +187,9 @@
 					<div class="chart-wrap">
 						<div id="chartToggleBar" style="margin-bottom:10px; display:none;">
 							<div class="btn-group btn-group-sm" role="group">
-								<button type="button" class="btn btn-default active" id="toggleCurrentSeason">This Season</button>
-								<button type="button" class="btn btn-default" id="toggleAllSeasons">All Seasons</button>
+								<button type="button" class="btn btn-default active" id="toggleAllSeasons">All Seasons</button>
+								<button type="button" class="btn btn-default" id="toggleCurrentSeason">This Season</button>
+								<button type="button" class="btn btn-default" id="toggleCumulative">Cumulative</button>
 							</div>
 						</div>
 						<canvas id="roundChart"></canvas>

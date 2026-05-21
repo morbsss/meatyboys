@@ -684,6 +684,11 @@ def analysis_player(playerid):
     return render_template('player.html', playerid=playerid)
 
 
+@app.route('/analysis/players')
+def analysis_players():
+    return render_template('player_search.html')
+
+
 @app.route('/analysis/compare')
 def analysis_compare():
     return render_template('compare.html')
