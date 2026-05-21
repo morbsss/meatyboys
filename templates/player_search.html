@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Meaty Boys Cup &mdash; Player Analysis</title>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+		<meta name="description" content="Meaty Boys Cup">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="/javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<script src="/javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+		<style>
+			.bodyStyle  { padding-top: 68px; }
+			.leftBorder { border-left: 2px solid #9d9d9d; }
+			.loader     { display: block; margin: 50px auto; height: 80px; }
+			.heading    { text-align: center; font-size: 200%; font-weight: bold; margin-bottom: 18px; }
+
+			.search-wrap {
+				max-width: 520px;
+				margin: 0 auto 20px;
+				position: relative;
+			}
+			#playerSearch {
+				width: 100%;
+				padding: 10px 14px;
+				font-size: 15px;
+				border: 1px solid #ccc;
+				border-radius: 6px;
+				box-shadow: inset 0 1px 3px rgba(0,0,0,0.07);
+			}
+			#playerSearch:focus {
+				outline: none;
+				border-color: #1a8fc4;
+				box-shadow: 0 0 0 3px rgba(26,143,196,0.15);
+			}
+			#resultCount {
+				text-align: center;
+				font-size: 12px;
+				color: #999;
+				margin-bottom: 10px;
+			}
+
+			.player-list {
+				max-width: 520px;
+				margin: 0 auto;
+			}
+			.player-item {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 10px 14px;
+				border: 1px solid #e8e8e8;
+				border-radius: 6px;
+				margin-bottom: 6px;
+				background: #fff;
+				cursor: pointer;
+				text-decoration: none;
+				color: inherit;
+				transition: background 0.1s;
+			}
+			.player-item:hover {
+				background: #f0f7fc;
+				border-color: #1a8fc4;
+				text-decoration: none;
+				color: inherit;
+			}
+			.p-name  { font-weight: bold; font-size: 14px; }
+			.p-meta  { font-size: 12px; color: #888; margin-top: 1px; }
+			.p-avg   { font-size: 18px; font-weight: bold; color: #1a4a7a; white-space: nowrap; margin-left: 12px; }
+			.p-avg-label { font-size: 10px; color: #aaa; text-align: right; }
+			.no-results { text-align: center; color: #aaa; padding: 30px 0; }
+
+			/* ── back link ───────────────────────────────────────── */
+			.back-link { margin-bottom: 14px; font-size: 13px; }
+			.back-link a { color: #1a8fc4; }
+
+			/* ── mobile ──────────────────────────────────────────── */
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom { display: none; }
+				.bodyStyle { padding-top: 8px !important; }
+				body { padding-bottom: 56px; }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 11px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.4px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+			}
+		</style>
+	</head>
+	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left">
+						<li><a href="/">Scoreboard</a></li>
+						<li><a href="/leaguetable" class="leftBorder">League Table</a></li>
+						<li><a href="/finals" class="leftBorder">Finals</a></li>
+						<li class="active"><a href="/analysis" class="leftBorder">Analysis</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container-fluid bodyStyle">
+			<div class="back-link"><a href="/analysis">&larr; Back to Analysis</a></div>
+
+			<div class="heading">Player Analysis</div>
+
+			<img class="loader" id="loader" src="/images/animal.gif">
+
+			<div id="content" style="display:none;">
+				<div class="search-wrap">
+					<input type="text" id="playerSearch" placeholder="Search players by name&hellip;" autocomplete="off" autofocus>
+				</div>
+				<div id="resultCount"></div>
+				<div class="player-list" id="playerList"></div>
+			</div>
+		</div>
+
+		<div class="bottom-nav">
+			<a href="/">Scores</a>
+			<a href="/leaguetable">Table</a>
+			<a href="/finals">Finals</a>
+			<a href="/analysis" class="active">Analysis</a>
+		</div>
+
+		<script>
+		$(function () {
+			var allPlayers = [];
+
+			$.getJSON('/getPlayerList', function (data) {
+				allPlayers = data.players || [];
+				$('#loader').hide();
+				$('#content').show();
+				render('');
+			}).fail(function () {
+				$('#loader').hide();
+				$('#content').show();
+				$('#playerList').html('<div class="no-results">Error loading players.</div>');
+			});
+
+			$('#playerSearch').on('input', function () {
+				render($(this).val());
+			});
+
+			function esc(s) {
+				return $('<div>').text(s || '').html();
+			}
+
+			function render(query) {
+				var q = query.trim().toLowerCase();
+				var results = q
+					? allPlayers.filter(function (p) {
+						return (p.playername || '').toLowerCase().indexOf(q) !== -1;
+					})
+					: allPlayers;
+
+				$('#resultCount').text(results.length + ' player' + (results.length !== 1 ? 's' : ''));
+
+				var $list = $('#playerList').empty();
+				if (!results.length) {
+					$list.html('<div class="no-results">No players found.</div>');
+					return;
+				}
+
+				var shown = results.slice(0, 100);
+				shown.forEach(function (p) {
+					var meta = [p.position, p.team, p.owner].filter(Boolean).join(' · ');
+					var avgHtml = p.season_avg !== null && p.season_avg !== undefined
+						? '<div class="p-avg">' + p.season_avg + '</div><div class="p-avg-label">ssn avg</div>'
+						: '';
+					$list.append(
+						'<a href="/analysis/player/' + esc(p.playerid) + '" class="player-item">' +
+						  '<div>' +
+						    '<div class="p-name">' + esc(p.playername) + '</div>' +
+						    '<div class="p-meta">' + esc(meta) + '</div>' +
+						  '</div>' +
+						  '<div style="text-align:right">' + avgHtml + '</div>' +
+						'</a>'
+					);
+				});
+
+				if (results.length > 100) {
+					$list.append('<div class="no-results" style="padding:10px 0;">Showing 100 of ' + results.length + ' — type to narrow search</div>');
+				}
+			}
+		});
+		</script>
+	</body>
+</html>
