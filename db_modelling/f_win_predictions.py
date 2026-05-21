@@ -100,12 +100,12 @@ def run(con=None):
             con.close()
         return
 
-    lineups = pd.read_sql(
-        "SELECT manager, playerid, role FROM manager_team WHERE role = 'Starting'",
+    all_lineups = pd.read_sql(
+        "SELECT manager, playerid, role FROM manager_team",
         con
     )
 
-    if lineups.empty:
+    if all_lineups.empty:
         log.warning('manager_team is empty — run b2_fetch_lineups.py first')
         if close_after:
             con.close()
@@ -119,11 +119,15 @@ def run(con=None):
 
     # ── 2. Build team score distributions ─────────────────────────────────
     team_dists = {}
-    for manager in lineups['manager'].unique():
-        pids = lineups[lineups['manager'] == manager]['playerid'].tolist()
-        dist = _team_score_distribution(manager, pids, scores_df)
-        if dist is not None:
-            team_dists[manager] = dist
+    for manager in all_lineups['manager'].unique():
+        starters = all_lineups[(all_lineups['manager'] == manager) & (all_lineups['role'] == 'Starting')]['playerid'].tolist()
+        if starters:
+            dist = _team_score_distribution(manager, starters, scores_df)
+            if dist is not None:
+                team_dists[manager] = dist
+        else:
+            log.warning(f'  {manager}: no starters set — using zero score distribution')
+            team_dists[manager] = np.zeros(100)
 
     # ── 3. Calculate win probabilities for each matchup ───────────────────
     records = []

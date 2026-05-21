@@ -10,7 +10,7 @@ except ImportError:
 
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / 'data'
-DB_PATH = DATA_DIR / 'analytics.db'
+DB_PATH = Path(os.getenv('ANALYTICS_DB_PATH', str(DATA_DIR / 'analytics.db')))
 FIXTURES_DIR = Path(__file__).parent / 'fixtures'
 
 FRD_URL = 'http://www.fantasyrugbydraft.com/Web/Services/Action.asmx/Request'
