@@ -114,7 +114,7 @@ $(function () {
                 data: { labels: rounds, datasets: datasets },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top', labels: { boxWidth: 12, font: { size: 12 } } },
                         tooltip: {
