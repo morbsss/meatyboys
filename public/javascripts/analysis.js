@@ -199,8 +199,8 @@ $(function () {
 
         return allPlayers.filter(function (p) {
             if (selectedMatchup) {
-                var o = p.owner || '';
-                if (o !== selectedMatchup.team_a && o !== selectedMatchup.team_b) return false;
+                var o = (p.owner || '').toUpperCase();
+                if (o !== selectedMatchup.team_a.toUpperCase() && o !== selectedMatchup.team_b.toUpperCase()) return false;
             } else if (owners.length) {
                 if (!owners.includes(normaliseOwner(p.owner))) return false;
             }
