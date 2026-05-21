@@ -685,9 +685,9 @@ def get_predictions():
     season_year  = rows[0]['season_year']  if rows else None
 
     last_updated = None
-    rows = _analytics_query("SELECT value FROM metadata WHERE key = 'last_extract'")
-    if rows:
-        val = rows[0]['value']
+    meta = _analytics_query("SELECT value FROM metadata WHERE key = 'last_extract'")
+    if meta:
+        val = meta[0]['value']
         if '+' not in val and not val.endswith('Z'):
             val += 'Z'  # stored as naive UTC — make it explicit for the browser
         last_updated = val
