@@ -48,37 +48,55 @@ $(function () {
         });
 
         // ── round-by-round chart ─────────────────────────────────────────────
-        if (scores.length) {
-            var seasons = [...new Set(scores.map(function (s) { return s.season_year; }))].sort();
-            var palette = ['#1a8fc4', '#e67e22', '#1a7a3c', '#8e44ad', '#c0392b'];
+        var roundChart = null;
+        var seasonMode = 'current';
+        var palette    = ['#1a8fc4', '#e67e22', '#1a7a3c', '#8e44ad', '#c0392b'];
+        var allSeasons = [...new Set(scores.map(function (s) { return s.season_year; }))].sort();
+        var maxSeason  = allSeasons[allSeasons.length - 1];
 
-            var allRounds = [...new Set(scores.map(function (s) { return s.round_num; }))].sort(function (a, b) { return a - b; });
+        function buildChart(mode) {
+            if (roundChart) { roundChart.destroy(); roundChart = null; }
+            if (!scores.length) return;
 
-            var datasets = seasons.map(function (yr, i) {
-                var color = palette[i % palette.length];
+            var visibleSeasons = (mode === 'current') ? [maxSeason] : allSeasons;
+
+            var rounds = [...new Set(
+                scores.filter(function (s) { return visibleSeasons.indexOf(s.season_year) !== -1; })
+                      .map(function (s) { return s.round_num; })
+            )].sort(function (a, b) { return a - b; });
+
+            var datasets = visibleSeasons.map(function (yr, i) {
+                var color    = palette[i % palette.length];
                 var scoreMap = {};
                 scores.filter(function (s) { return s.season_year === yr; })
                       .forEach(function (s) { scoreMap[s.round_num] = s.total; });
                 return {
-                    label: '' + yr,
-                    data: allRounds.map(function (r) { return scoreMap[r] !== undefined ? scoreMap[r] : null; }),
-                    borderColor: color,
-                    backgroundColor: color + '33',
-                    tension: 0.3,
-                    fill: false,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    spanGaps: false,
+                    label:            '' + yr,
+                    data:             rounds.map(function (r) { return scoreMap[r] !== undefined ? scoreMap[r] : null; }),
+                    borderColor:      color,
+                    backgroundColor:  color + '22',
+                    tension:          0.3,
+                    fill:             false,
+                    pointRadius:      5,
+                    pointHoverRadius: 7,
+                    borderWidth:      2,
+                    spanGaps:         false,
                 };
             });
 
-            new Chart(document.getElementById('roundChart'), {
+            var allValues = scores
+                .filter(function (s) { return visibleSeasons.indexOf(s.season_year) !== -1 && s.total !== null; })
+                .map(function (s) { return s.total; });
+            var yMin = allValues.length ? Math.min(0, Math.floor(Math.min.apply(null, allValues))) : 0;
+
+            roundChart = new Chart(document.getElementById('roundChart'), {
                 type: 'line',
-                data: { labels: allRounds, datasets: datasets },
+                data: { labels: rounds, datasets: datasets },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: true,
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 12 } } },
                         tooltip: {
                             callbacks: {
                                 title: function (items) { return 'Round ' + items[0].label; },
@@ -86,12 +104,34 @@ $(function () {
                         },
                     },
                     scales: {
-                        x: { title: { display: true, text: 'Round' } },
-                        y: { title: { display: true, text: 'Score' }, beginAtZero: true },
+                        x: { title: { display: true, text: 'Round' }, ticks: { font: { size: 11 } } },
+                        y: { title: { display: true, text: 'Score' }, min: yMin, ticks: { font: { size: 11 } } },
                     },
                 },
             });
         }
+
+        if (scores.length) {
+            buildChart(seasonMode);
+            if (allSeasons.length > 1) {
+                $('#chartToggleBar').show();
+            }
+        }
+
+        $('#toggleCurrentSeason').on('click', function () {
+            if (seasonMode === 'current') return;
+            seasonMode = 'current';
+            $(this).addClass('active');
+            $('#toggleAllSeasons').removeClass('active');
+            buildChart(seasonMode);
+        });
+        $('#toggleAllSeasons').on('click', function () {
+            if (seasonMode === 'all') return;
+            seasonMode = 'all';
+            $(this).addClass('active');
+            $('#toggleCurrentSeason').removeClass('active');
+            buildChart(seasonMode);
+        });
 
         // ── score history table ──────────────────────────────────────────────
         var $sb = $('#scoreBody');
