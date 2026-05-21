@@ -12,7 +12,7 @@
 		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 		<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
 		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-		<script src="javascripts/analysis.js?v=7"></script>
+		<script src="javascripts/analysis.js?v=8"></script>
 		<style>
 			.bodyStyle  { padding-top: 68px; }
 			.leftBorder { border-left: 2px solid #9d9d9d; }
@@ -52,7 +52,12 @@
 				border-radius: 6px;
 				padding: 12px 14px;
 				background: #fafafa;
+				cursor: pointer;
+				transition: background 0.12s, border-color 0.12s;
 			}
+			.matchup-card:hover { background: #f0f7fc; border-color: #1a8fc4; }
+			.matchup-card.selected { background: #e8f4fb; border: 2px solid #1a8fc4; }
+			.matchup-hint { font-size: 11px; color: #aaa; text-align: right; padding: 4px 12px 8px; }
 			.matchup-teams {
 				display: flex;
 				justify-content: space-between;
@@ -269,6 +274,7 @@
 					<div class="sec-title">This Round's Matchups</div>
 					<div class="sec-wrap">
 						<div class="matchup-grid" id="matchupGrid"></div>
+						<div class="matchup-hint">Click a matchup to filter players &darr;</div>
 					</div>
 				</div>
 
@@ -297,6 +303,9 @@
 								<label><input type="checkbox" class="news-cb" value="Bench"> Bench</label>
 							</div>
 						</div>
+						<span id="matchupActive" style="display:none; font-size:12px; color:#1a8fc4; cursor:pointer;">
+							<strong id="matchupActiveLabel"></strong> &times; clear
+						</span>
 						<span id="playerCount"></span>
 					</div>
 					<div class="table-scroll">

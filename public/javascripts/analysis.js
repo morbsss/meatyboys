@@ -1,7 +1,8 @@
 $(function () {
-    var allPlayers = [];
-    var sortCol    = 'gbm_pred';
-    var sortAsc    = false;
+    var allPlayers     = [];
+    var sortCol        = 'gbm_pred';
+    var sortAsc        = false;
+    var selectedMatchup = null; // { team_a, team_b }
 
     // ── load data ──────────────────────────────────────────────────────────
     $.when(
@@ -42,6 +43,23 @@ $(function () {
     });
 
     // ── win prediction cards ───────────────────────────────────────────────
+    function setMatchupFilter(m) {
+        if (m && selectedMatchup && selectedMatchup.team_a === m.team_a && selectedMatchup.team_b === m.team_b) {
+            selectedMatchup = null;
+        } else {
+            selectedMatchup = m;
+        }
+        $('.matchup-card').removeClass('selected');
+        if (selectedMatchup) {
+            $('#matchupCard-' + selectedMatchup.team_a).addClass('selected');
+            $('#matchupActive').show();
+            $('#matchupActiveLabel').text(selectedMatchup.team_a + ' vs ' + selectedMatchup.team_b);
+        } else {
+            $('#matchupActive').hide();
+        }
+        renderTable();
+    }
+
     function buildWinCards(matchups) {
         var $grid = $('#matchupGrid');
         if (!matchups.length) {
@@ -60,8 +78,9 @@ $(function () {
                 return isFav ? 'fav' : 'dog';
             }
 
+            var cardId = 'matchupCard-' + m.team_a;
             var $card = $(
-                '<div class="matchup-card">' +
+                '<div class="matchup-card" id="' + cardId + '">' +
                   '<div class="matchup-teams">' +
                     '<div class="m-team">' +
                       '<div>' + m.team_a + '</div>' +
@@ -79,9 +98,12 @@ $(function () {
                   (draw > 0 ? '<div class="m-draw">draw ' + draw + '%</div>' : '') +
                 '</div>'
             );
+            $card.on('click', function () { setMatchupFilter(m); });
             $grid.append($card);
         });
     }
+
+    $('#matchupActive').on('click', function () { setMatchupFilter(null); });
 
     // ── filters ────────────────────────────────────────────────────────────
     function normaliseOwner(owner) {
@@ -176,8 +198,13 @@ $(function () {
         var news   = selectedNews();
 
         return allPlayers.filter(function (p) {
+            if (selectedMatchup) {
+                var o = p.owner || '';
+                if (o !== selectedMatchup.team_a && o !== selectedMatchup.team_b) return false;
+            } else if (owners.length) {
+                if (!owners.includes(normaliseOwner(p.owner))) return false;
+            }
             if (pos && p.position !== pos) return false;
-            if (owners.length && !owners.includes(normaliseOwner(p.owner))) return false;
             if (news.length) {
                 var n = (p.news || '').toLowerCase();
                 if (!news.includes(n)) return false;
