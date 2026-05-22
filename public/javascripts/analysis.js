@@ -242,6 +242,7 @@ $(function () {
             if (selectedMatchup) {
                 var o = (p.owner || '').toUpperCase();
                 if (o !== selectedMatchup.team_a.toUpperCase() && o !== selectedMatchup.team_b.toUpperCase()) return false;
+                if (p.lineup_role !== 'Starting') return false;
             } else if (owners.length) {
                 if (!owners.includes(normaliseOwner(p.owner))) return false;
             }
@@ -292,8 +293,10 @@ $(function () {
                 : '<span class="td-name">' + (p.playername || '') + '</span>';
 
             var lCls    = lineupClass(p.lineup_role);
-            var scoreTd = (p.actual_score !== null && p.actual_score !== undefined)
-                ? '<td class="td-actual"><strong>' + p.actual_score + '</strong></td>'
+            var liveScore   = (p.live_status === 'live' && p.live_score !== null && p.live_score !== undefined);
+            var scoreVal    = liveScore ? p.live_score : (p.actual_score !== null && p.actual_score !== undefined ? p.actual_score : null);
+            var scoreTd     = scoreVal !== null
+                ? '<td class="td-actual"><strong>' + scoreVal + '</strong>' + (liveScore ? ' <span style="color:#e74c3c;font-size:9px;vertical-align:middle;">&#9679;</span>' : '') + '</td>'
                 : '<td>' + fmt(null) + '</td>';
 
             // Live: bold/red once the player's match has been played (status 'live')
