@@ -75,7 +75,20 @@ else:
                     break
             comps = leg.get('events') or []
             for comp in comps:
-                competitors = comp['competitions'][0]['competitors']
+                competition = comp['competitions'][0]
+                competitors = competition['competitors']
+                # Game clock / status (ESPN: pre | in | post)
+                status = competition.get('status', {}) or {}
+                stype  = status.get('type', {}) or {}
+                clock_info = {
+                    'displayClock': status.get('displayClock'),
+                    'period':       status.get('period'),
+                    'state':        stype.get('state'),
+                    'detail':       stype.get('shortDetail'),
+                    'completed':    stype.get('completed'),
+                }
+                competitors[0]['clock'] = clock_info
+                competitors[1]['clock'] = clock_info
                 score_arr.append(competitors[0])
                 score_arr.append(competitors[1])
         except Exception as e:

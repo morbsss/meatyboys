@@ -15,7 +15,7 @@
 			<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 			<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
 			<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-			<script src="javascripts/main.js"></script>
+			<script src="javascripts/main.js?v=3"></script>
 <style>
 
 	.myTable{
@@ -90,6 +90,11 @@
 	.vs-divider {
 		font-size: 24px;
 		color: #999;
+		font-weight: bold;
+	}
+	.game-clock {
+		font-size: 48px;
+		color: #444;
 		font-weight: bold;
 	}
 	.titleH{
@@ -239,6 +244,7 @@
 					<div class="score-section-name" id="awayT">Away</div>
 					<div class="score-display" id="scoreAway" style="color: #333;">-</div>
 				</div>
+				<div class="game-clock" id="gameClock"></div>
 			</div>
 			<img class="loader" id="loader" src="images/animal.gif">
 			<table  class="table myTable" id="playerTable" >

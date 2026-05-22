@@ -87,6 +87,25 @@ function toggleSortBy() {
 
 var timer = setInterval(refreshData, 30000);
 
+// Game clock state + per-second ticker (MM:SS elapsed since kickoff while a game is live)
+var gClock = { state: '', kickoff: null };
+function renderClock() {
+	var gc = document.getElementById("gameClock");
+	if (!gc) return;
+	if (gClock.state === 'post') { gc.innerHTML = 'FT'; return; }
+	if (gClock.state === 'in' && gClock.kickoff) {
+		var ms = Date.now() - gClock.kickoff.getTime();
+		if (ms < 0) { gc.innerHTML = ''; return; }
+		var totalSec = Math.floor(ms / 1000);
+		var mm = Math.floor(totalSec / 60);
+		var ss = totalSec % 60;
+		gc.innerHTML = (mm < 10 ? '0' : '') + mm + ':' + ('0' + ss).slice(-2);
+		return;
+	}
+	gc.innerHTML = '';
+}
+setInterval(renderClock, 1000);
+
 
 var loadedOnce = 0;
 
@@ -149,6 +168,13 @@ function getScore() {
 		document.getElementById("scoreHome").style.color = homeColor;
 		document.getElementById("scoreAway").innerHTML = awayScore;
 		document.getElementById("scoreAway").style.color = awayColor;
+
+		// Game clock: ticking MM:SS elapsed since kickoff while live, FT when done.
+		// (ESPN doesn't give a reliable running clock for Super Rugby.)
+		var clk = teamA.clock || teamB.clock || {};
+		gClock.state   = clk.completed ? 'post' : (clk.state || '');
+		gClock.kickoff = (currGame && currGame.datetime) ? new Date(convertDate(currGame.datetime)) : null;
+		renderClock();
 	})
 }
 
