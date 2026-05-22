@@ -298,23 +298,18 @@ $(function () {
 
             // Live: bold/red once the player's match has been played (status 'live')
             var locked   = (p.live_status === 'live');
-            var liveTd   = (p.live_score !== null && p.live_score !== undefined)
-                ? '<td' + (locked ? ' class="td-actual"' : '') + '>' +
-                      (locked ? '<strong>' + p.live_score + '</strong>' : p.live_score) + '</td>'
-                : '<td>' + fmt(null) + '</td>';
             var projTd   = '<td' + (locked ? ' class="td-actual"' : '') + '>' + fmt(p.projected_final) + '</td>';
 
             $body.append(
                 '<tr>' +
                 '<td class="td-name">' + nameCell + '</td>' +
                 '<td>' + (p.position || '') + '</td>' +
-                '<td>' + (p.team || '') + '</td>' +
-                '<td>' + (p.opposition || '') + '</td>' +
+                '<td class="col-narrow">' + (p.team || '') + '</td>' +
+                '<td class="col-narrow">' + (p.opposition || '') + '</td>' +
                 '<td>' + (p.owner || '') + '</td>' +
                 '<td class="' + nCls + '">' + (p.news || '') + '</td>' +
                 '<td class="' + lCls + '">' + (p.lineup_role || '') + '</td>' +
                 scoreTd +
-                liveTd +
                 projTd +
                 '<td class="td-gbm">' + fmt(p.gbm_pred) + '</td>' +
                 '<td>' + fmt(p.baseline_3g_avg) + '</td>' +

@@ -13,7 +13,7 @@
 		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 		<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
 		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-		<script src="javascripts/analysis.js?v=12"></script>
+		<script src="javascripts/analysis.js?v=13"></script>
 		<style>
 			.bodyStyle  { padding-top: 68px; }
 			.leftBorder { border-left: 2px solid #9d9d9d; }
@@ -204,6 +204,7 @@
 			.td-bench    { color: #aaa;    font-size: 11px; }
 			.td-na { color: #ccc; }
 			.td-name { font-weight: bold; }
+			#predTable th.col-narrow, #predTable td.col-narrow { font-size: 11px; padding-left: 5px; padding-right: 5px; }
 
 			/* ── mobile ─────────────────────────────────────────────── */
 			.bottom-nav { display: none; }
@@ -325,13 +326,12 @@
 								<tr>
 									<th data-col="playername">Player</th>
 									<th data-col="position">Pos</th>
-									<th data-col="team">Team</th>
-									<th data-col="opposition">vs</th>
+									<th data-col="team" class="col-narrow">Team</th>
+									<th data-col="opposition" class="col-narrow">vs</th>
 									<th data-col="owner">Owner</th>
 									<th data-col="news">News</th>
 									<th data-col="lineup_role">Lineup</th>
 									<th data-col="actual_score">Score</th>
-									<th data-col="live_score">Live <i class="info-icon" data-toggle="tooltip" data-container="body" title="Live points scored so far this round (updates during games). Locked once the player's match has been played.">ⓘ</i></th>
 									<th data-col="projected_final">Proj <i class="info-icon" data-toggle="tooltip" data-container="body" title="Projected final score for the round: the live score once a player's match has started, otherwise the model projection.">ⓘ</i></th>
 									<th data-col="gbm_pred">GBM <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gradient Boosted Model — machine learning prediction trained on historical scores, rolling averages, and opposition difficulty. Usually the most accurate single predictor.">ⓘ</i></th>
 									<th data-col="baseline_3g_avg">3G Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across the player's last 3 games. Reflects recent form.">ⓘ</i></th>
