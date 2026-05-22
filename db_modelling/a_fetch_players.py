@@ -79,6 +79,11 @@ def fetch_player_list(session, con):
 
     headers = ['position', 'playerid', 'playername', 'team', 'owner', 'opposition', 'score', 'news', 'page']
     df = pd.DataFrame(rows, columns=headers)
+    if df.empty:
+        # Transient FRD/empty response — do NOT replace the table or we'd wipe
+        # good data and break downstream steps. Keep what we already have.
+        print('WARNING: FRD returned 0 players — keeping existing player_list')
+        return df
     df['fetched_at'] = dt.datetime.now().isoformat()
     df.to_sql('player_list', con, if_exists='replace', index=False)
     print(f'Saved {len(df)} players to player_list')
@@ -133,8 +138,11 @@ def main():
 
     session = _get_session()
     player_df = fetch_player_list(session, con)
-    update_player_ref(player_df, con)
-    update_team_news(player_df, con, season)
+    if player_df.empty:
+        print('Skipping ref/team-news updates (no players fetched)')
+    else:
+        update_player_ref(player_df, con)
+        update_team_news(player_df, con, season)
 
     con.commit()
     con.close()

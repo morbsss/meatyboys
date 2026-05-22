@@ -32,7 +32,7 @@ import params
 
 
 def main():
-    start = dt.datetime.now()
+    start = dt.datetime.now(dt.timezone.utc)
     print(f'=== Analytics Pipeline — {start.strftime("%Y-%m-%d %H:%M:%S")} ===\n')
 
     print('--- Step 0: Initialise database')
@@ -75,9 +75,32 @@ def main():
     f_win_predictions.run(con)
     print()
 
+    # Step 9: backfill each prediction's actual score from detailed_scores
+    # (current round fills in as games are played; past rounds fill for accuracy).
+    print('--- Step 9: Backfill actual scores')
+    n = con.execute('''
+        UPDATE all_predictions
+        SET actual_score = (
+            SELECT ds.total FROM detailed_scores ds
+            WHERE ds.playerid    = all_predictions.playerid
+              AND ds.season_year = all_predictions.season_year
+              AND ds.round_num   = all_predictions.round_num
+              AND ds.total IS NOT NULL
+            LIMIT 1
+        )
+        WHERE EXISTS (
+            SELECT 1 FROM detailed_scores ds
+            WHERE ds.playerid    = all_predictions.playerid
+              AND ds.season_year = all_predictions.season_year
+              AND ds.round_num   = all_predictions.round_num
+              AND ds.total IS NOT NULL
+        )
+    ''').rowcount
+    con.commit()
+    print(f'Backfilled actual_score for {n} prediction rows')
+    print()
+
     completed = dt.datetime.now(dt.timezone.utc)
-    con = sqlite3.connect(params.DB_PATH)
-    con.execute('PRAGMA journal_mode=WAL')
     con.execute("CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT)")
     con.execute("INSERT OR REPLACE INTO metadata (key, value) VALUES ('last_extract', ?)",
                 (completed.isoformat(),))
