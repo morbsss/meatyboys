@@ -29,7 +29,8 @@ class Meatyboys:
             .with_exec(["apt-get", "install", "-y", "-q", "openssh-client"])
             .with_exec(["mkdir", "-p", "/root/.ssh"])
             .with_new_file("/root/.ssh/config", ssh_config, permissions=0o600)
-            .with_mounted_secret("/root/.ssh/id_ed25519", ssh_private_key, mode=0o600)
+            .with_mounted_secret("/tmp/.ssh_key_raw", ssh_private_key, mode=0o600)
+            .with_exec(["sh", "-c", "sed 's/\\r$//' /tmp/.ssh_key_raw > /root/.ssh/id_ed25519 && chmod 600 /root/.ssh/id_ed25519"])
         )
 
     @function
