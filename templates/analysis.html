@@ -13,12 +13,17 @@
 		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 		<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
 		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-		<script src="javascripts/analysis.js?v=10"></script>
+		<script src="javascripts/analysis.js?v=12"></script>
 		<style>
 			.bodyStyle  { padding-top: 68px; }
 			.leftBorder { border-left: 2px solid #9d9d9d; }
 			.loader     { display: block; margin: 50px auto; height: 80px; }
 			.heading    { text-align: center; font-size: 200%; font-weight: bold; margin-bottom: 18px; }
+
+			/* ── live indicator (spinning cat) ──────────────────────── */
+			.liveCatTop   { display: flex; align-items: center; justify-content: center; gap: 6px; margin: -10px 0 10px; }
+			.liveCatLabel { font-size: 13px; color: #999; font-style: italic; }
+			.liveCatImg   { height: 28px; }
 
 			/* ── section titles ─────────────────────────────────────── */
 			.sec-title {
@@ -255,10 +260,12 @@
 		</nav>
 
 		<div class="container-fluid bodyStyle">
-			<div class="heading">Analysis &mdash; Round <span id="roundNum">...</span>
-				<span id="liveBadge" style="display:none; font-size:13px; color:#fff; background:#d9534f; padding:2px 8px; border-radius:10px; vertical-align:middle; margin-left:8px;">&#9679; LIVE</span>
+			<div class="heading">Analysis &mdash; Round <span id="roundNum">...</span></div>
+			<div id="liveCatTop" class="liveCatTop" style="display:none;">
+				<img src="images/animal.gif" class="liveCatImg" alt="live" id="liveCatImg">
+				<span id="liveRoundLabel" class="liveCatLabel"></span>
 			</div>
-			<div style="text-align:center; font-size:12px; color:#999; margin-top:-10px; margin-bottom:10px;">
+			<div id="lastUpdatedRow" style="text-align:center; font-size:12px; color:#999; margin-top:-10px; margin-bottom:10px;">
 				Data last updated: <span id="lastUpdated">—</span>
 			</div>
 			<div style="text-align:center; margin-bottom: 16px;">

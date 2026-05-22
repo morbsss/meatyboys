@@ -22,15 +22,22 @@ $(function () {
 
             var rnd = predData.round_num || winData.round_num;
             $('#roundNum').text(rnd || '—');
-            $('#liveBadge').toggle(isLive);
 
-            // "Data last updated" — prefer the live timestamp while live
-            var updated = (isLive && liveData.computed_at) ? liveData.computed_at : predData.last_updated;
-            if (updated) {
-                var d = new Date(updated);
-                $('#lastUpdated').text(d.toLocaleString(undefined, {
-                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-                }) + (isLive ? ' (live)' : ''));
+            // Live indicator: spinning cat + label (same format as the other live pages).
+            // While live, hide the "Data last updated" line; show it only when not live.
+            if (isLive) {
+                $('#liveRoundLabel').text('LIVE — Round ' + (rnd || ''));
+                $('#liveCatTop').css('display', 'flex');
+                $('#lastUpdatedRow').hide();
+            } else {
+                $('#liveCatTop').hide();
+                if (predData.last_updated) {
+                    var d = new Date(predData.last_updated);
+                    $('#lastUpdated').text(d.toLocaleString(undefined, {
+                        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                    }));
+                }
+                $('#lastUpdatedRow').show();
             }
 
             // Use live win probabilities when in the live window, else static
