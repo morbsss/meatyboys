@@ -10,6 +10,13 @@ import requests
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 DATA_DIR = os.path.join(ROOT, 'data')
 
+# Load credentials from .env (cron jobs don't inherit a shell environment)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(ROOT, '.env'))
+except ImportError:
+    pass
+
 LEAGUE_ID = os.environ["FRD_LEAGUE_ID"]
 SEASON_ID = os.environ["FRD_SEASON_ID"]
 
