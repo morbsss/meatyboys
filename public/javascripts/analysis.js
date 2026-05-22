@@ -20,6 +20,12 @@ $(function () {
             allPlayers = predData.players || [];
             isLive     = !!predData.live;
 
+            allPlayers.forEach(function (p) {
+                p.display_score = (p.live_status === 'live' && p.live_score !== null && p.live_score !== undefined)
+                    ? p.live_score
+                    : (p.actual_score !== null && p.actual_score !== undefined ? p.actual_score : null);
+            });
+
             var rnd = predData.round_num || winData.round_num;
             $('#roundNum').text(rnd || '—');
 
@@ -73,9 +79,17 @@ $(function () {
     function setMatchupFilter(m) {
         if (m && selectedMatchup && selectedMatchup.team_a === m.team_a && selectedMatchup.team_b === m.team_b) {
             selectedMatchup = null;
+            sortCol = 'gbm_pred';
+            sortAsc = false;
         } else {
             selectedMatchup = m;
+            if (m) {
+                sortCol = 'display_score';
+                sortAsc = false;
+            }
         }
+        $('#predTable thead th').removeClass('sort-asc sort-desc');
+        $('[data-col="' + sortCol + '"]').addClass('sort-desc');
         applyMatchupHighlight();
         renderTable();
     }
