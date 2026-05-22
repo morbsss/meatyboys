@@ -230,6 +230,12 @@ def run(con=None):
 
     round_num = get_current_round(con)
     log.info(f'  Current round: {round_num}')
+
+    # Static predictions must use only data BEFORE the target round, so they stay
+    # clean pre-round projections even after the current round's live scores land
+    # in detailed_scores. (GBM training already enforces round_num < target_round.)
+    scores_df = scores_df[~((scores_df['season_year'] == params.CURRENT_SEASON) &
+                            (scores_df['round_num'] >= round_num))].copy()
     log.info(f'  {len(scores_df):,} score rows | {len(players):,} players | '
              f'{len(fixtures):,} fixture rows')
 

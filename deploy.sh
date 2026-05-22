@@ -71,6 +71,9 @@ CRON_TZ=Australia/Sydney
 0 9,12,15,18,21 * * 0 cd $APP_DIR/db_modelling && $PYTHON run_extract.py >> $APP_DIR/cron.log 2>&1
 0 */3 * * 1,2 cd $APP_DIR/db_modelling && $PYTHON run_extract.py >> $APP_DIR/cron.log 2>&1
 0 0,3,6,9,12 * * 3 cd $APP_DIR/db_modelling && $PYTHON run_extract.py >> $APP_DIR/cron.log 2>&1
+# Live in-round projections + win probabilities, every 3 min on game days
+# (g_live.py self-skips outside the fixtures.json live window)
+*/3 * * * 5,6,0,1 cd $APP_DIR/db_modelling && $PYTHON g_live.py >> $APP_DIR/cron.log 2>&1
 CRON
 ) | crontab -
 echo "[setup] Cron jobs installed."

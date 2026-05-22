@@ -43,6 +43,7 @@ def init_db():
             opposition  TEXT,
             home_away   TEXT,
             match_date  TEXT,
+            kickoff     TEXT,
             season      INTEGER,
             PRIMARY KEY (round_num, team, season)
         );
@@ -245,12 +246,53 @@ def init_db():
             PRIMARY KEY (round_num, team_a_id, season)
         );
 
+        -- Live (in-round) head-to-head probabilities, refreshed every few minutes
+        -- during the live window by g_live.py. Played starters are locked to their
+        -- actual score; not-yet-played starters keep their projection distribution.
+        CREATE TABLE IF NOT EXISTS live_win_predictions (
+            round_num       INTEGER,
+            season          INTEGER,
+            team_a          TEXT,
+            team_b          TEXT,
+            team_a_id       TEXT,
+            team_b_id       TEXT,
+            team_a_win_prob REAL,
+            team_b_win_prob REAL,
+            draw_prob       REAL,
+            team_a_locked   REAL,
+            team_b_locked   REAL,
+            computed_at     TEXT,
+            PRIMARY KEY (round_num, team_a_id, season)
+        );
+
+        -- Live per-player view: actual score so far + projected final for the round.
+        CREATE TABLE IF NOT EXISTS live_predictions (
+            playerid        TEXT,
+            playername      TEXT,
+            team            TEXT,
+            owner           TEXT,
+            round_num       INTEGER,
+            season          INTEGER,
+            live_score      REAL,
+            status          TEXT,
+            projected_final REAL,
+            computed_at     TEXT,
+            PRIMARY KEY (playerid, round_num, season)
+        );
+
         CREATE INDEX IF NOT EXISTS idx_ds_player     ON detailed_scores (playerid, season_year);
         CREATE INDEX IF NOT EXISTS idx_ds_round      ON detailed_scores (round_num, season_year);
         CREATE INDEX IF NOT EXISTS idx_ps_season     ON player_summary (season_year);
         CREATE INDEX IF NOT EXISTS idx_map_canonical ON player_id_map (canonical_playerid);
         CREATE INDEX IF NOT EXISTS idx_pred_round    ON all_predictions (round_num, season_year);
     ''')
+
+    # CREATE TABLE IF NOT EXISTS won't add columns to a pre-existing table —
+    # add new columns idempotently here.
+    ref_cols = {r[1] for r in con.execute("PRAGMA table_info(ref_fixtures)")}
+    if 'kickoff' not in ref_cols:
+        con.execute("ALTER TABLE ref_fixtures ADD COLUMN kickoff TEXT")
+
     con.commit()
     con.close()
     print(f'Database ready at {params.DB_PATH}')

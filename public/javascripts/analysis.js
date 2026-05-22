@@ -1,46 +1,66 @@
 $(function () {
-    var allPlayers     = [];
-    var sortCol        = 'gbm_pred';
-    var sortAsc        = false;
+    var allPlayers      = [];
+    var sortCol         = 'gbm_pred';
+    var sortAsc         = false;
     var selectedMatchup = null; // { team_a, team_b }
+    var isLive          = false;
+    var loaded          = false;
 
-    // ── load data ──────────────────────────────────────────────────────────
-    $.when(
-        $.getJSON('/getPredictions'),
-        $.getJSON('/getWinPredictions')
-    ).then(function (predRes, winRes) {
-        var predData = predRes[0];
-        var winData  = winRes[0];
+    // ── load + poll ─────────────────────────────────────────────────────────
+    function load() {
+        $.when(
+            $.getJSON('/getPredictions'),
+            $.getJSON('/getWinPredictions'),
+            $.getJSON('/getLiveWinPredictions')
+        ).then(function (predRes, winRes, liveRes) {
+            var predData = predRes[0];
+            var winData  = winRes[0];
+            var liveData = liveRes[0];
 
-        allPlayers = predData.players || [];
+            allPlayers = predData.players || [];
+            isLive     = !!predData.live;
 
-        var rnd = predData.round_num || winData.round_num;
-        $('#roundNum').text(rnd || '—');
-        if (predData.last_updated) {
-            var d = new Date(predData.last_updated);
-            $('#lastUpdated').text(d.toLocaleString(undefined, {
-                day: 'numeric', month: 'short',
-                hour: '2-digit', minute: '2-digit'
-            }));
-        }
+            var rnd = predData.round_num || winData.round_num;
+            $('#roundNum').text(rnd || '—');
+            $('#liveBadge').toggle(isLive);
 
-        buildWinCards(winData.matchups || []);
-        populateFilters(allPlayers);
-        renderTable();
+            // "Data last updated" — prefer the live timestamp while live
+            var updated = (isLive && liveData.computed_at) ? liveData.computed_at : predData.last_updated;
+            if (updated) {
+                var d = new Date(updated);
+                $('#lastUpdated').text(d.toLocaleString(undefined, {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                }) + (isLive ? ' (live)' : ''));
+            }
 
-        $('#loader').hide();
-        $('#content').show();
+            // Use live win probabilities when in the live window, else static
+            var liveMatchups = liveData.matchups || [];
+            var matchups = (isLive && liveMatchups.length) ? liveMatchups : (winData.matchups || []);
+            buildWinCards(matchups);
 
-        $('[data-toggle="tooltip"]').tooltip({ placement: 'top' });
+            if (!loaded) {
+                populateFilters(allPlayers);
+                loaded = true;
+                $('#loader').hide();
+                $('#content').show();
+                if (!allPlayers.length && !matchups.length) {
+                    $('#roundNum').text('no data yet');
+                }
+            }
 
-        if (!allPlayers.length && !(winData.matchups || []).length) {
-            $('#roundNum').text('no data yet');
-        }
-    }).fail(function () {
-        $('#loader').hide();
-        $('#content').show();
-        $('#roundNum').text('error loading data');
-    });
+            renderTable();
+            $('[data-toggle="tooltip"]').tooltip({ placement: 'top' });
+        }).fail(function () {
+            if (!loaded) {
+                $('#loader').hide();
+                $('#content').show();
+                $('#roundNum').text('error loading data');
+            }
+        });
+    }
+
+    load();
+    setInterval(load, 30000);  // same cadence as the live scoreboard pages
 
     // ── win prediction cards ───────────────────────────────────────────────
     function setMatchupFilter(m) {
@@ -49,6 +69,11 @@ $(function () {
         } else {
             selectedMatchup = m;
         }
+        applyMatchupHighlight();
+        renderTable();
+    }
+
+    function applyMatchupHighlight() {
         $('.matchup-card').removeClass('selected');
         if (selectedMatchup) {
             $('#matchupCard-' + selectedMatchup.team_a).addClass('selected');
@@ -57,15 +82,15 @@ $(function () {
         } else {
             $('#matchupActive').hide();
         }
-        renderTable();
     }
 
     function buildWinCards(matchups) {
-        var $grid = $('#matchupGrid');
+        var $grid = $('#matchupGrid').empty();
         if (!matchups.length) {
             $('#winSection').hide();
             return;
         }
+        $('#winSection').show();
         matchups.forEach(function (m) {
             var aProb = m.team_a_win_prob || 0;
             var bProb = m.team_b_win_prob || 0;
@@ -77,6 +102,13 @@ $(function () {
                 if (diff < 5) return 'even';
                 return isFav ? 'fav' : 'dog';
             }
+
+            // Live locked score line (only present on live matchups)
+            var hasLocked = (m.team_a_locked !== undefined && m.team_a_locked !== null);
+            var liveLine  = (isLive && hasLocked)
+                ? '<div class="m-live" style="text-align:center; font-size:11px; color:#d9534f; margin-top:2px;">' +
+                      m.team_a_locked + ' &ndash; ' + m.team_b_locked + ' so far</div>'
+                : '';
 
             var cardId = 'matchupCard-' + m.team_a;
             var $card = $(
@@ -96,11 +128,13 @@ $(function () {
                     '<div class="prob-bar-fill" style="width:' + aProb + '%"></div>' +
                   '</div>' +
                   (draw > 0 ? '<div class="m-draw">draw ' + draw + '%</div>' : '') +
+                  liveLine +
                 '</div>'
             );
             $card.on('click', function () { setMatchupFilter(m); });
             $grid.append($card);
         });
+        applyMatchupHighlight();
     }
 
     $('#matchupActive').on('click', function () { setMatchupFilter(null); });
@@ -255,6 +289,14 @@ $(function () {
                 ? '<td class="td-actual"><strong>' + p.actual_score + '</strong></td>'
                 : '<td>' + fmt(null) + '</td>';
 
+            // Live: bold/red once the player's match has been played (status 'live')
+            var locked   = (p.live_status === 'live');
+            var liveTd   = (p.live_score !== null && p.live_score !== undefined)
+                ? '<td' + (locked ? ' class="td-actual"' : '') + '>' +
+                      (locked ? '<strong>' + p.live_score + '</strong>' : p.live_score) + '</td>'
+                : '<td>' + fmt(null) + '</td>';
+            var projTd   = '<td' + (locked ? ' class="td-actual"' : '') + '>' + fmt(p.projected_final) + '</td>';
+
             $body.append(
                 '<tr>' +
                 '<td class="td-name">' + nameCell + '</td>' +
@@ -265,6 +307,8 @@ $(function () {
                 '<td class="' + nCls + '">' + (p.news || '') + '</td>' +
                 '<td class="' + lCls + '">' + (p.lineup_role || '') + '</td>' +
                 scoreTd +
+                liveTd +
+                projTd +
                 '<td class="td-gbm">' + fmt(p.gbm_pred) + '</td>' +
                 '<td>' + fmt(p.baseline_3g_avg) + '</td>' +
                 '<td>' + fmt(p.baseline_season_avg) + '</td>' +

@@ -656,6 +656,17 @@ def _analytics_query(sql, params=()):
         return []
 
 
+def _is_live_window():
+    """True if games are in play right now, per fixtures.json liveWindow."""
+    try:
+        lw = read_json_file(DATA_DIR / 'fixtures.json').get('liveWindow', {})
+        start = datetime.fromisoformat(lw['start'].replace('Z', '+00:00'))
+        end   = datetime.fromisoformat(lw['end'].replace('Z', '+00:00'))
+        return start <= datetime.now(timezone.utc) <= end
+    except Exception:
+        return False
+
+
 # ── analytics routes ───────────────────────────────────────────────────────────
 
 @app.route('/analysis')
@@ -676,9 +687,15 @@ def get_predictions():
                ROUND(ap.baseline_season_avg, 1) AS baseline_season_avg,
                ROUND(ap.simple_5g_pred, 1)      AS simple_5g_pred,
                ROUND(ap.gamma_p50, 1)           AS gamma_p50,
-               ROUND(ap.weibull_p50, 1)         AS weibull_p50
+               ROUND(ap.weibull_p50, 1)         AS weibull_p50,
+               ROUND(lp.live_score, 1)          AS live_score,
+               lp.status                        AS live_status,
+               ROUND(lp.projected_final, 1)     AS projected_final
         FROM all_predictions ap
         LEFT JOIN manager_team mt ON ap.playerid = mt.playerid
+        LEFT JOIN live_predictions lp ON lp.playerid = ap.playerid
+                                     AND lp.round_num = ap.round_num
+                                     AND lp.season    = ap.season_year
         WHERE ap.season_year = (SELECT MAX(season_year) FROM all_predictions)
           AND ap.round_num   = (SELECT MAX(round_num) FROM all_predictions
                                 WHERE season_year = (SELECT MAX(season_year) FROM all_predictions))
@@ -696,7 +713,8 @@ def get_predictions():
         last_updated = val
 
     return jsonify({'round_num': round_num, 'season_year': season_year,
-                    'last_updated': last_updated, 'players': rows})
+                    'last_updated': last_updated, 'live': _is_live_window(),
+                    'players': rows})
 
 
 @app.route('/analysis/player/<playerid>')
@@ -801,6 +819,23 @@ def get_win_predictions():
     ''')
     round_num = rows[0]['round_num'] if rows else None
     return jsonify({'round_num': round_num, 'matchups': rows})
+
+
+@app.route('/getLiveWinPredictions')
+def get_live_win_predictions():
+    rows = _analytics_query('''
+        SELECT team_a, team_b, team_a_win_prob, team_b_win_prob, draw_prob,
+               team_a_locked, team_b_locked, round_num, computed_at
+        FROM live_win_predictions
+        WHERE season = (SELECT MAX(season) FROM live_win_predictions)
+          AND round_num = (SELECT MAX(round_num) FROM live_win_predictions
+                           WHERE season = (SELECT MAX(season) FROM live_win_predictions))
+        ORDER BY team_a
+    ''')
+    round_num   = rows[0]['round_num']   if rows else None
+    computed_at = rows[0]['computed_at'] if rows else None
+    return jsonify({'round_num': round_num, 'live': _is_live_window(),
+                    'computed_at': computed_at, 'matchups': rows})
 
 
 # ── error handlers ────────────────────────────────────────────────────────────

@@ -31,9 +31,10 @@ def load_fixtures(filepath, season, con):
         df[col] = df[col].replace(params.TEAM_NAME_MAP).str.strip()
 
     df['match_date'] = df['date'].dt.strftime('%Y-%m-%d')
+    df['kickoff'] = df['date'].dt.strftime('%Y-%m-%dT%H:%M')  # local (AEST) kickoff
     df['season'] = season
 
-    home_rows = df[['round_num', 'team', 'opposition', 'home_away', 'match_date', 'season']].copy()
+    home_rows = df[['round_num', 'team', 'opposition', 'home_away', 'match_date', 'kickoff', 'season']].copy()
 
     # Add away-team perspective so merges work for all players
     away_rows = home_rows.copy()
@@ -41,6 +42,9 @@ def load_fixtures(filepath, season, con):
     away_rows['home_away'] = away_rows['home_away'].map({'home': 'away', 'away': 'home'})
 
     combined = pd.concat([home_rows, away_rows], ignore_index=True)
+    # The CSV may already contain both home and away perspectives; drop duplicates
+    # so we don't violate the (round_num, team, season) primary key.
+    combined = combined.drop_duplicates(subset=['round_num', 'team', 'season'], keep='first')
 
     con.execute('DELETE FROM ref_fixtures WHERE season = ?', (season,))
     combined.to_sql(params.FIXTURE_TABLE, con, if_exists='append', index=False)

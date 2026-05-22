@@ -255,7 +255,9 @@
 		</nav>
 
 		<div class="container-fluid bodyStyle">
-			<div class="heading">Analysis &mdash; Round <span id="roundNum">...</span></div>
+			<div class="heading">Analysis &mdash; Round <span id="roundNum">...</span>
+				<span id="liveBadge" style="display:none; font-size:13px; color:#fff; background:#d9534f; padding:2px 8px; border-radius:10px; vertical-align:middle; margin-left:8px;">&#9679; LIVE</span>
+			</div>
 			<div style="text-align:center; font-size:12px; color:#999; margin-top:-10px; margin-bottom:10px;">
 				Data last updated: <span id="lastUpdated">—</span>
 			</div>
@@ -322,6 +324,8 @@
 									<th data-col="news">News</th>
 									<th data-col="lineup_role">Lineup</th>
 									<th data-col="actual_score">Score</th>
+									<th data-col="live_score">Live <i class="info-icon" data-toggle="tooltip" data-container="body" title="Live points scored so far this round (updates during games). Locked once the player's match has been played.">ⓘ</i></th>
+									<th data-col="projected_final">Proj <i class="info-icon" data-toggle="tooltip" data-container="body" title="Projected final score for the round: the live score once a player's match has started, otherwise the model projection.">ⓘ</i></th>
 									<th data-col="gbm_pred">GBM <i class="info-icon" data-toggle="tooltip" data-container="body" title="Gradient Boosted Model — machine learning prediction trained on historical scores, rolling averages, and opposition difficulty. Usually the most accurate single predictor.">ⓘ</i></th>
 									<th data-col="baseline_3g_avg">3G Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across the player's last 3 games. Reflects recent form.">ⓘ</i></th>
 									<th data-col="baseline_season_avg">Ssn Avg <i class="info-icon" data-toggle="tooltip" data-container="body" title="Average score across all games played this season. Reflects overall season quality.">ⓘ</i></th>
