@@ -13,6 +13,11 @@ function fmt(v) {
     return (v !== null && v !== undefined) ? parseFloat(v).toFixed(1) : '&mdash;';
 }
 
+function flagName(name) {
+    if (!name) return name;
+    return name.toLowerCase() === 'big katunas' ? name + '*' : name;
+}
+
 function renderFinals(data) {
     document.getElementById('champSection').innerHTML = buildSection(data, false);
     document.getElementById('sackoSection').innerHTML = buildSection(data, true);
@@ -175,7 +180,7 @@ function teamBar(name, rank, score, highlighted, cls) {
     }
     var hi = highlighted ? ' hi' : ' dim';
     return '<div class="bar ' + cls + hi + '">' +
-        '<span class="bar-name">' + name + '</span>' +
+        '<span class="bar-name">' + flagName(name) + '</span>' +
         '<span class="bar-score">' + fmt(score) + '</span>' +
         '</div>';
 }
@@ -187,7 +192,7 @@ function finalBar(name, score, cls, isWinner, isSacko) {
     // In final: winner = champion (champ bracket) or loser = sacko (sacko bracket)
     var hi = isWinner ? ' hi' : ' dim';
     return '<div class="bar fin-bar ' + cls + hi + '">' +
-        '<span class="bar-name">' + name + '</span>' +
+        '<span class="bar-name">' + flagName(name) + '</span>' +
         '<span class="bar-score">' + fmt(score) + '</span>' +
         '</div>';
 }
@@ -201,7 +206,7 @@ function resultBanner(final_, isSacko) {
     var icon = isSacko ? '&#127814;' : '&#127942;';
     var word = isSacko ? 'SACKO' : 'CHAMPION';
     return '<div class="result-banner ' + (isSacko ? 'sacko' : 'champ') + '">' +
-        icon + ' ' + word + ': <strong>' + winner + '</strong>' +
+        icon + ' ' + word + ': <strong>' + flagName(winner) + '</strong>' +
         '</div>';
 }
 
@@ -213,7 +218,7 @@ function breakdown(s1, s2, isSacko) {
     function teamLine(name, rank, r14, r15, agg) {
         if (!name) return '';
         return '<div class="bdown-row">' +
-            '<span class="bdown-name">' + name + '</span>' +
+            '<span class="bdown-name">' + flagName(name) + '</span>' +
             '<span class="bdown-scores">R14: ' + fmt(r14) +
             ' &nbsp; R15: ' + fmt(r15) +
             ' &nbsp; <strong>CUM: ' + fmt(agg) + '</strong></span>' +

@@ -76,6 +76,11 @@ $(function () {
     setInterval(load, 30000);  // same cadence as the live scoreboard pages
 
     // ── win prediction cards ───────────────────────────────────────────────
+    function flagName(name) {
+        if (!name) return name;
+        return name.toLowerCase() === 'big katunas' ? name + '*' : name;
+    }
+
     function setMatchupFilter(m) {
         if (m && selectedMatchup && selectedMatchup.team_a === m.team_a && selectedMatchup.team_b === m.team_b) {
             selectedMatchup = null;
@@ -99,7 +104,7 @@ $(function () {
         if (selectedMatchup) {
             $('#matchupCard-' + selectedMatchup.team_a).addClass('selected');
             $('#matchupActive').show();
-            $('#matchupActiveLabel').text(selectedMatchup.team_a + ' vs ' + selectedMatchup.team_b);
+            $('#matchupActiveLabel').text(flagName(selectedMatchup.team_a) + ' vs ' + flagName(selectedMatchup.team_b));
         } else {
             $('#matchupActive').hide();
         }
@@ -136,12 +141,12 @@ $(function () {
                 '<div class="matchup-card" id="' + cardId + '">' +
                   '<div class="matchup-teams">' +
                     '<div class="m-team">' +
-                      '<div>' + m.team_a + '</div>' +
+                      '<div>' + flagName(m.team_a) + '</div>' +
                       '<div class="m-prob ' + probClass(aFav) + '">' + aProb + '%</div>' +
                     '</div>' +
                     '<div class="m-vs">vs</div>' +
                     '<div class="m-team right">' +
-                      '<div>' + m.team_b + '</div>' +
+                      '<div>' + flagName(m.team_b) + '</div>' +
                       '<div class="m-prob ' + probClass(!aFav) + '">' + bProb + '%</div>' +
                     '</div>' +
                   '</div>' +
