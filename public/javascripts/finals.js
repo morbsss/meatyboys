@@ -14,8 +14,7 @@ function fmt(v) {
 }
 
 function flagName(name) {
-    if (!name) return name;
-    return name.toLowerCase() === 'big katunas' ? name + '*' : name;
+    return name;
 }
 
 function renderFinals(data) {
