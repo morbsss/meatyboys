@@ -77,8 +77,7 @@ $(function () {
 
     // ── win prediction cards ───────────────────────────────────────────────
     function flagName(name) {
-        if (!name) return name;
-        return name.toLowerCase() === 'big katunas' ? name + '*' : name;
+        return name;
     }
 
     function setMatchupFilter(m) {
