@@ -85,6 +85,10 @@ def fetch_player_list(session, con):
         print('WARNING: FRD returned 0 players — keeping existing player_list')
         return df
     df['fetched_at'] = dt.datetime.now().isoformat()
+    before = len(df)
+    df = df.drop_duplicates(subset=['playerid'])
+    if len(df) < before:
+        print(f'WARNING: dropped {before - len(df)} duplicate playerid rows from FRD response')
     df.to_sql('player_list', con, if_exists='replace', index=False)
     print(f'Saved {len(df)} players to player_list')
     return df
