@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Meaty Boys Champ!</title>
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+		<link rel="icon" href="images/animal.gif" type="image/gif">
+		<meta name="description" content="Meaty Boys Champ!">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;
+				background: #111;
+				min-height: 100%;
+			}
+			.champ-wrap {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+				padding: 24px;
+				box-sizing: border-box;
+				text-align: center;
+			}
+			.champ-header {
+				font-family: "Arial Black", Arial, sans-serif;
+				font-weight: 900;
+				font-size: 64px;
+				line-height: 1.05;
+				margin: 0 0 28px;
+				letter-spacing: 1px;
+				color: #009639;                 /* green */
+				text-shadow:
+					-2px -2px 0 #FFCD00,
+					 2px -2px 0 #FFCD00,
+					-2px  2px 0 #FFCD00,
+					 2px  2px 0 #FFCD00,
+					 0    4px 6px rgba(0,0,0,0.5); /* gold outline + drop shadow */
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 0.4em;
+			}
+			.champ-gif {
+				height: 0.5em;                  /* 50% of the heading text size */
+				width: auto;
+			}
+			.champ-img {
+				max-width: 100%;
+				max-height: 70vh;
+				height: auto;
+				border: 6px solid #FFCD00;       /* gold frame */
+				border-radius: 8px;
+				box-shadow: 0 0 25px rgba(0, 150, 57, 0.6);
+			}
+			@media (max-width: 600px) {
+				.champ-header { font-size: 36px; margin-bottom: 18px; }
+				.champ-img { max-height: 60vh; }
+			}
+		</style>
+	</head>
+	<body>
+		<div class="champ-wrap">
+			<h1 class="champ-header">
+				<span>Meaty Boys Champ!</span>
+				<img class="champ-gif" src="images/animal.gif" alt="">
+				<img class="champ-gif" src="images/animal.gif" alt="">
+			</h1>
+			<img class="champ-img" src="images/champ.jpg" alt="Meaty Boys Champ">
+		</div>
+	</body>
+</html>
