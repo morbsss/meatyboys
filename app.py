@@ -9,7 +9,7 @@ from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, redirect
 
 import config
 
@@ -36,6 +36,16 @@ USERS = [
 
 SELECTION_TIME_MS  = 92 * 1000
 FINALS_START_ROUND = 14        # rounds 14+ are finals - league table freezes
+
+# ── Temporary champ takeover ────────────────────────────────────────────────
+# Until this instant the site shows only the champ page; after it, the normal
+# site automatically returns. Set in UTC. Remove this block + the champ_active()
+# checks below to retire the takeover early.
+CHAMP_UNTIL = datetime(2026, 6, 7, 14, 0, 0, tzinfo=timezone.utc)  # 2026-06-08 00:00 AEST
+
+
+def champ_active():
+    return datetime.now(timezone.utc) < CHAMP_UNTIL
 
 file_lock = threading.Lock()
 
@@ -138,21 +148,30 @@ _timer_thread.start()
 
 @app.route('/')
 def index():
+    if champ_active():
+        return render_template('champ.html')
     return render_template('index.html')
 
 
+# While the champ takeover is active, every other page redirects to it.
 @app.route('/Draft')
 def draft():
+    if champ_active():
+        return redirect('/')
     return render_template('draft.html')
 
 
 @app.route('/leaguetable')
 def leaguetable():
+    if champ_active():
+        return redirect('/')
     return render_template('leaguetable.html')
 
 
 @app.route('/finals')
 def finals():
+    if champ_active():
+        return redirect('/')
     return render_template('finals.html')
 
 
@@ -671,6 +690,8 @@ def _is_live_window():
 
 @app.route('/analysis')
 def analysis():
+    if champ_active():
+        return redirect('/')
     return render_template('analysis.html')
 
 
@@ -719,16 +740,22 @@ def get_predictions():
 
 @app.route('/analysis/player/<playerid>')
 def analysis_player(playerid):
+    if champ_active():
+        return redirect('/')
     return render_template('player.html', playerid=playerid)
 
 
 @app.route('/analysis/players')
 def analysis_players():
+    if champ_active():
+        return redirect('/')
     return render_template('player_search.html')
 
 
 @app.route('/analysis/compare')
 def analysis_compare():
+    if champ_active():
+        return redirect('/')
     return render_template('compare.html')
 
 
