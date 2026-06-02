@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Meaty Boys Cup &mdash; Team of the Week</title>
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+		<link rel="icon" href="images/animal.gif" type="image/gif">
+		<link rel="icon" href="favicon.ico" type="image/x-icon">
+		<meta name="description" content="Meaty Boys Cup">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://kit.fontawesome.com/408615a420.js" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<script type="text/javascript" src="javascripts/jquery.touchSwipe.min.js"></script>
+		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+		<script src="javascripts/totw.js?v=1"></script>
+		<style>
+			.bodyStyle  { padding-top: 68px; }
+			.leftBorder { border-left: 2px solid #9d9d9d; }
+			.loader     { display: block; margin: 50px auto; height: 80px; }
+			.heading    { text-align: center; font-size: 200%; font-weight: bold; margin-bottom: 4px; }
+
+			/* ── round selector ─────────────────────────────────────── */
+			.totw-controls { text-align: center; margin-bottom: 18px; }
+			.totw-controls select {
+				padding: 6px 12px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				font-size: 15px;
+				background: #fff;
+			}
+
+			/* ── pitch ──────────────────────────────────────────────── */
+			.pitch {
+				max-width: 760px;
+				margin: 0 auto;
+				background: repeating-linear-gradient(
+					to bottom, #2e8b3d 0, #2e8b3d 56px, #2a7f37 56px, #2a7f37 112px);
+				border: 3px solid #fff;
+				border-radius: 8px;
+				padding: 22px 14px;
+				box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+			}
+			.pitch-line {
+				display: flex;
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: 10px;
+				margin-bottom: 18px;
+			}
+			.pitch-line:last-child { margin-bottom: 0; }
+			.line-label {
+				text-align: center;
+				color: rgba(255,255,255,0.7);
+				font-size: 10px;
+				text-transform: uppercase;
+				letter-spacing: 1px;
+				margin-bottom: 4px;
+			}
+
+			/* ── player card ────────────────────────────────────────── */
+			.totw-card {
+				width: 140px;
+				background: #fff;
+				border-radius: 6px;
+				padding: 8px 8px 6px;
+				text-align: center;
+				box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+			}
+			.totw-card.empty { background: rgba(255,255,255,0.25); box-shadow: none; }
+			.totw-score {
+				display: inline-block;
+				background: #1a8fc4;
+				color: #fff;
+				font-weight: bold;
+				font-size: 15px;
+				border-radius: 12px;
+				padding: 1px 10px;
+				margin-bottom: 4px;
+			}
+			.totw-name { font-weight: bold; font-size: 13px; line-height: 1.15; }
+			.totw-meta { font-size: 11px; color: #777; margin-top: 2px; }
+			.totw-owner { font-size: 11px; color: #1a4a7a; margin-top: 2px; font-style: italic; }
+			.totw-empty-text { color: rgba(255,255,255,0.85); font-size: 12px; padding: 14px 0; }
+
+			.totw-total {
+				text-align: center;
+				margin: 16px auto 0;
+				font-size: 14px;
+				color: #555;
+			}
+			.totw-total strong { color: #1a4a7a; font-size: 18px; }
+			.no-data { text-align: center; color: #999; padding: 40px 0; font-size: 16px; }
+
+			/* ── mobile ─────────────────────────────────────────────── */
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom { display: none; }
+				.bodyStyle { padding-top: 8px !important; }
+				body { padding-bottom: 56px; }
+				.totw-card { width: calc(50% - 6px); }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 11px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.4px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+			}
+		</style>
+	</head>
+	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left">
+						<li><a href="/">Scoreboard</a></li>
+						<li><a href="/leaguetable" class="leftBorder">League Table</a></li>
+						<li><a href="/finals" class="leftBorder">Finals</a></li>
+						<li><a href="/analysis" class="leftBorder">Analysis</a></li>
+						<li class="active"><a href="/teamoftheweek" class="leftBorder">Team of the Week</a></li>
+						<li><a href="/champ" class="leftBorder">Champ</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container-fluid bodyStyle">
+			<div class="heading">Team of the Week</div>
+			<div class="totw-controls">
+				<select id="roundSelect"></select>
+			</div>
+
+			<img class="loader" id="loader" src="images/animal.gif">
+
+			<div id="content" style="display:none;">
+				<div class="pitch" id="pitch"></div>
+				<div class="totw-total" id="totwTotal"></div>
+				<div class="no-data" id="noData" style="display:none;">
+					No team-of-the-week data for this round yet.
+				</div>
+			</div>
+		</div>
+
+		<div class="bottom-nav">
+			<a href="/">Scores</a>
+			<a href="/leaguetable">Table</a>
+			<a href="/finals">Finals</a>
+			<a href="/analysis">Analysis</a>
+			<a href="/teamoftheweek" class="active">TOTW</a>
+			<a href="/champ">Champ</a>
+		</div>
+	</body>
+</html>

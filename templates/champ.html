@@ -7,6 +7,9 @@
 		<link rel="icon" href="images/animal.gif" type="image/gif">
 		<meta name="description" content="Meaty Boys Champ!">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="javascripts/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+		<script src="javascripts/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 		<style>
 			html, body {
 				margin: 0;
@@ -14,13 +17,14 @@
 				background: #111;
 				min-height: 100%;
 			}
+			.leftBorder { border-left: 2px solid #9d9d9d; }
 			.champ-wrap {
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				justify-content: center;
-				min-height: 100vh;
-				padding: 24px;
+				min-height: calc(100vh - 50px);
+				padding: 74px 24px 24px;
 				box-sizing: border-box;
 				text-align: center;
 			}
@@ -59,9 +63,63 @@
 				.champ-header { font-size: 36px; margin-bottom: 18px; }
 				.champ-img { max-height: 60vh; }
 			}
+
+			/* ── mobile bottom nav (matches the other pages) ─────────── */
+			.bottom-nav { display: none; }
+			@media (max-width: 767px) {
+				#navZoom { display: none; }
+				.champ-wrap { padding-top: 24px; min-height: calc(100vh - 56px); }
+				body { padding-bottom: 56px; }
+				.bottom-nav {
+					display: flex;
+					position: fixed;
+					bottom: 0; left: 0; right: 0;
+					height: 56px;
+					background: #222;
+					z-index: 1030;
+					border-top: 1px solid #444;
+				}
+				.bottom-nav a {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: #9d9d9d;
+					font-size: 11px;
+					font-weight: bold;
+					text-decoration: none;
+					text-transform: uppercase;
+					letter-spacing: 0.4px;
+				}
+				.bottom-nav a + a { border-left: 1px solid #444; }
+				.bottom-nav a.active { color: #fff; background: #2d2d2d; }
+			}
 		</style>
 	</head>
 	<body>
+		<nav id="navZoom" class="navbar navbar-inverse navbar-fixed-top navFormat">
+			<div class="container-fluid">
+				<div id="headerNav" class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-left">
+						<li><a href="/">Scoreboard</a></li>
+						<li><a href="/leaguetable" class="leftBorder">League Table</a></li>
+						<li><a href="/finals" class="leftBorder">Finals</a></li>
+						<li><a href="/analysis" class="leftBorder">Analysis</a></li>
+						<li><a href="/teamoftheweek" class="leftBorder">Team of the Week</a></li>
+						<li class="active"><a href="/champ" class="leftBorder">Champ</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
 		<div class="champ-wrap">
 			<h1 class="champ-header">
 				<span>Meaty Boys Champ!</span>
@@ -69,6 +127,15 @@
 				<img class="champ-gif" src="images/animal.gif" alt="">
 			</h1>
 			<img class="champ-img" src="images/champ.jpg" alt="Meaty Boys Champ">
+		</div>
+
+		<div class="bottom-nav">
+			<a href="/">Scores</a>
+			<a href="/leaguetable">Table</a>
+			<a href="/finals">Finals</a>
+			<a href="/analysis">Analysis</a>
+			<a href="/teamoftheweek">TOTW</a>
+			<a href="/champ" class="active">Champ</a>
 		</div>
 	</body>
 </html>

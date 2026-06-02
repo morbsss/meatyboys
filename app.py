@@ -9,7 +9,7 @@ from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-from flask import Flask, render_template, request, jsonify, Response, redirect
+from flask import Flask, render_template, request, jsonify, Response
 
 import config
 
@@ -36,16 +36,6 @@ USERS = [
 
 SELECTION_TIME_MS  = 92 * 1000
 FINALS_START_ROUND = 14        # rounds 14+ are finals - league table freezes
-
-# ── Temporary champ takeover ────────────────────────────────────────────────
-# Until this instant the site shows only the champ page; after it, the normal
-# site automatically returns. Set in UTC. Remove this block + the champ_active()
-# checks below to retire the takeover early.
-CHAMP_UNTIL = datetime(2026, 6, 7, 14, 0, 0, tzinfo=timezone.utc)  # 2026-06-08 00:00 AEST
-
-
-def champ_active():
-    return datetime.now(timezone.utc) < CHAMP_UNTIL
 
 file_lock = threading.Lock()
 
@@ -148,30 +138,26 @@ _timer_thread.start()
 
 @app.route('/')
 def index():
-    if champ_active():
-        return render_template('champ.html')
     return render_template('index.html')
 
 
-# While the champ takeover is active, every other page redirects to it.
+@app.route('/champ')
+def champ():
+    return render_template('champ.html')
+
+
 @app.route('/Draft')
 def draft():
-    if champ_active():
-        return redirect('/')
     return render_template('draft.html')
 
 
 @app.route('/leaguetable')
 def leaguetable():
-    if champ_active():
-        return redirect('/')
     return render_template('leaguetable.html')
 
 
 @app.route('/finals')
 def finals():
-    if champ_active():
-        return redirect('/')
     return render_template('finals.html')
 
 
@@ -690,8 +676,6 @@ def _is_live_window():
 
 @app.route('/analysis')
 def analysis():
-    if champ_active():
-        return redirect('/')
     return render_template('analysis.html')
 
 
@@ -740,22 +724,16 @@ def get_predictions():
 
 @app.route('/analysis/player/<playerid>')
 def analysis_player(playerid):
-    if champ_active():
-        return redirect('/')
     return render_template('player.html', playerid=playerid)
 
 
 @app.route('/analysis/players')
 def analysis_players():
-    if champ_active():
-        return redirect('/')
     return render_template('player_search.html')
 
 
 @app.route('/analysis/compare')
 def analysis_compare():
-    if champ_active():
-        return redirect('/')
     return render_template('compare.html')
 
 
@@ -846,6 +824,58 @@ def get_win_predictions():
     ''')
     round_num = rows[0]['round_num'] if rows else None
     return jsonify({'round_num': round_num, 'matchups': rows})
+
+
+# Team-of-the-week formation: position label -> number of slots. Ordered back-to-front.
+TOTW_SLOTS = [
+    ('Outside Back',  3),
+    ('Midfielder',    2),
+    ('Fly Half',      1),
+    ('Half Back',     1),
+    ('Loose Forward', 2),
+    ('Lock',          1),
+    ('Front Row',     1),
+]
+
+# round_num -> display label for the finals rounds (regular rounds use "Round N")
+TOTW_FINALS_LABELS = {14: 'Semi Final 1', 15: 'Semi Final 2', 16: 'Final'}
+
+
+@app.route('/teamoftheweek')
+def team_of_the_week():
+    return render_template('totw.html')
+
+
+@app.route('/getTeamOfTheWeek/<int:round_num>')
+def get_team_of_the_week(round_num):
+    """Best XI by position for a given round (current season), one row per slot."""
+    rows = _analytics_query('''
+        SELECT playerid, playername, team, position, owner, opposition, news,
+               ROUND(total, 1) AS total, mins
+        FROM detailed_scores
+        WHERE season_year = (SELECT MAX(season_year) FROM detailed_scores)
+          AND round_num = ?
+          AND total IS NOT NULL
+          AND mins >= 1
+        ORDER BY total DESC
+    ''', (round_num,))
+
+    by_pos = defaultdict(list)
+    for r in rows:
+        by_pos[r['position']].append(r)
+
+    team = []
+    for position, slots in TOTW_SLOTS:
+        picks = by_pos.get(position, [])[:slots]
+        # Pad with empty slots so the formation always renders fully
+        while len(picks) < slots:
+            picks.append(None)
+        team.append({'position': position, 'players': picks})
+
+    label = TOTW_FINALS_LABELS.get(round_num, f'Round {round_num}')
+    return jsonify({'round_num': round_num, 'label': label,
+                    'hasData': any(p for line in team for p in line['players']),
+                    'team': team})
 
 
 @app.route('/getLiveWinPredictions')
