@@ -841,6 +841,35 @@ TOTW_SLOTS = [
 TOTW_FINALS_LABELS = {14: 'Semi Final 1', 15: 'Semi Final 2', 16: 'Final'}
 
 
+def _clean_owner(owner):
+    """Waiver-pool entries (e.g. 'WAIVERS - ...') display as 'Free Agent'."""
+    if owner and 'waiver' in owner.lower():
+        return 'Free Agent'
+    return owner
+
+
+def _build_formation(rows):
+    """Slot player rows (already sorted best-first) into the team formation.
+
+    Returns (team, has_data). Owner names are normalised on the way through.
+    """
+    by_pos = defaultdict(list)
+    for r in rows:
+        r['owner'] = _clean_owner(r.get('owner'))
+        by_pos[r['position']].append(r)
+
+    team = []
+    for position, slots in TOTW_SLOTS:
+        picks = by_pos.get(position, [])[:slots]
+        # Pad with empty slots so the formation always renders fully
+        while len(picks) < slots:
+            picks.append(None)
+        team.append({'position': position, 'players': picks})
+
+    has_data = any(p for line in team for p in line['players'])
+    return team, has_data
+
+
 @app.route('/teamoftheweek')
 def team_of_the_week():
     return render_template('totw.html')
@@ -860,22 +889,48 @@ def get_team_of_the_week(round_num):
         ORDER BY total DESC
     ''', (round_num,))
 
-    by_pos = defaultdict(list)
-    for r in rows:
-        by_pos[r['position']].append(r)
-
-    team = []
-    for position, slots in TOTW_SLOTS:
-        picks = by_pos.get(position, [])[:slots]
-        # Pad with empty slots so the formation always renders fully
-        while len(picks) < slots:
-            picks.append(None)
-        team.append({'position': position, 'players': picks})
-
+    team, has_data = _build_formation(rows)
     label = TOTW_FINALS_LABELS.get(round_num, f'Round {round_num}')
     return jsonify({'round_num': round_num, 'label': label,
-                    'hasData': any(p for line in team for p in line['players']),
-                    'team': team})
+                    'hasData': has_data, 'team': team})
+
+
+@app.route('/getTeamOfTheYear')
+def get_team_of_the_year():
+    """Best XI by position over the whole season — each player's totals summed."""
+    raw = _analytics_query('''
+        SELECT playerid, playername, position, team, owner, news,
+               round_num, total, mins
+        FROM detailed_scores
+        WHERE season_year = (SELECT MAX(season_year) FROM detailed_scores)
+          AND total IS NOT NULL
+          AND mins >= 1
+        ORDER BY playerid, round_num
+    ''')
+
+    # Sum each player's season across rounds; keep their latest team/owner/position.
+    agg = {}
+    for r in raw:
+        a = agg.get(r['playerid'])
+        if a is None:
+            a = agg[r['playerid']] = {
+                'playerid': r['playerid'], 'playername': r['playername'],
+                'position': r['position'], 'team': r['team'], 'owner': r['owner'],
+                'news': r['news'], 'total': 0.0, 'mins': 0, 'games': 0,
+            }
+        a['total'] += r['total'] or 0
+        a['mins']  += r['mins'] or 0
+        a['games'] += 1
+        # Rows are round-ordered, so the last write wins = most recent values.
+        a['position'], a['team'], a['owner'], a['news'] = \
+            r['position'], r['team'], r['owner'], r['news']
+
+    players = sorted(agg.values(), key=lambda p: p['total'], reverse=True)
+    for p in players:
+        p['total'] = round(p['total'], 1)
+
+    team, has_data = _build_formation(players)
+    return jsonify({'label': 'Team of the Year', 'hasData': has_data, 'team': team})
 
 
 @app.route('/getLiveWinPredictions')
