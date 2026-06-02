@@ -1,12 +1,12 @@
 $(function () {
-    // Dropdown options: rounds 1-13, then the three finals rounds.
-    var ROUND_OPTIONS = [];
+    // Dropdown options: Team of the Year (whole season), then rounds 1-13 and finals.
+    var ROUND_OPTIONS = [{ value: 'year', label: 'Team of the Year' }];
     for (var r = 1; r <= 13; r++) {
-        ROUND_OPTIONS.push({ value: r, label: 'Round ' + r });
+        ROUND_OPTIONS.push({ value: String(r), label: 'Round ' + r });
     }
-    ROUND_OPTIONS.push({ value: 14, label: 'Semi Final 1' });
-    ROUND_OPTIONS.push({ value: 15, label: 'Semi Final 2' });
-    ROUND_OPTIONS.push({ value: 16, label: 'Final' });
+    ROUND_OPTIONS.push({ value: '14', label: 'Semi Final 1' });
+    ROUND_OPTIONS.push({ value: '15', label: 'Semi Final 2' });
+    ROUND_OPTIONS.push({ value: '16', label: 'Final' });
 
     // Display label per position line.
     var POS_LABELS = {
@@ -24,7 +24,7 @@ $(function () {
         ROUND_OPTIONS.forEach(function (o) {
             $sel.append($('<option>').val(o.value).text(o.label));
         });
-        $sel.on('change', function () { load(parseInt($(this).val(), 10)); });
+        $sel.on('change', function () { load($(this).val()); });
     }
 
     function esc(s) {
@@ -36,7 +36,11 @@ $(function () {
             return '<div class="totw-card empty"><div class="totw-empty-text">&mdash;</div></div>';
         }
         var meta = esc(p.team || '');
-        if (p.opposition) { meta += ' <span style="color:#aaa;">vs ' + esc(p.opposition) + '</span>'; }
+        if (p.opposition) {
+            meta += ' <span style="color:#aaa;">vs ' + esc(p.opposition) + '</span>';
+        } else if (p.games) {
+            meta += ' <span style="color:#aaa;">&middot; ' + p.games + ' games</span>';
+        }
         return '' +
             '<div class="totw-card">' +
                 '<div class="totw-score">' + (p.total != null ? p.total : '0') + '</div>' +
@@ -49,6 +53,8 @@ $(function () {
     function render(data) {
         var $pitch = $('#pitch').empty();
         var $total = $('#totwTotal').empty();
+
+        $('#pageHeading').text(data && data.label ? data.label : 'Team of the Week');
 
         if (!data || !data.hasData) {
             $pitch.hide();
@@ -77,10 +83,13 @@ $(function () {
         $total.html('Total &mdash; <strong>' + Math.round(sum * 10) / 10 + '</strong> pts from ' + count + ' players').show();
     }
 
-    function load(round) {
+    function load(selection) {
         $('#loader').show();
         $('#content').hide();
-        $.getJSON('/getTeamOfTheWeek/' + round)
+        var url = (selection === 'year')
+            ? '/getTeamOfTheYear'
+            : '/getTeamOfTheWeek/' + selection;
+        $.getJSON(url)
             .done(function (data) {
                 render(data);
             })
@@ -96,5 +105,5 @@ $(function () {
     }
 
     buildSelect();
-    load(parseInt($('#roundSelect').val(), 10));
+    load($('#roundSelect').val());
 });
