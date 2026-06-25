@@ -1,56 +1,53 @@
-name: Deploy on PR Merge
+name: Deploy
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, synchronize, reopened, closed]
     branches: [master]
   workflow_dispatch:
-
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+  deploy-dev:
+    name: Deploy to dev (port 5000)
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    concurrency:
+      group: deploy-dev-${{ github.head_ref }}
+      cancel-in-progress: true
 
     steps:
-      - name: Set up SSH
+      - uses: actions/checkout@v4
+
+      - name: Install Dagger
+        run: curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/usr/local/bin sh
+
+      - name: Deploy to dev
+        run: dagger call deploy-dev --ssh-private-key=env:SSH_PRIVATE_KEY --env-production=env:ENV_PRODUCTION
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          if [ -z "$SSH_PRIVATE_KEY" ]; then
-            echo "ERROR: SSH_PRIVATE_KEY secret is empty"; exit 1
-          fi
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          cat > ~/.ssh/config <<'EOF'
-          Host vm
-              HostName 149.28.178.14
-              User root
-              StrictHostKeyChecking no
-              UserKnownHostsFile /dev/null
-          EOF
-          chmod 600 ~/.ssh/config
-
-      - name: Verify SSH connection
-        run: ssh -o BatchMode=yes -o ConnectTimeout=10 vm "echo connected"
-
-      - name: Write .env on VM
-        env:
           ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
-        run: |
-          if [ -z "$ENV_PRODUCTION" ]; then
-            echo "ERROR: ENV_PRODUCTION secret is empty"; exit 1
-          fi
-          printf '%s\n' "$ENV_PRODUCTION" | ssh vm "cat > ~/meatyboys/.env"
 
-      - name: Pull latest code and deploy
-        run: |
-          ssh vm 'set -e; cd ~/meatyboys && git fetch origin master && git reset --hard origin/master && bash deploy.sh'
+  deploy-prod:
+    name: Deploy to production (port 80)
+    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dagger
+        run: curl -fsSL https://dl.dagger.io/dagger/install.sh | BIN_DIR=/usr/local/bin sh
+
+      - name: Deploy to production
+        run: dagger call deploy --ssh-private-key=env:SSH_PRIVATE_KEY --env-production=env:ENV_PRODUCTION
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
